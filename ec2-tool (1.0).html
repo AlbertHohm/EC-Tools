@@ -1,0 +1,2798 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EC2·TOOL PRO – Engineering Suite</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #080d19; 
+      --bg-surface: #0f1729; 
+      --bg-panel: #162038;
+      --accent: #f59e0b; 
+      --accent-hover: #d97706;
+      --accent-dim: rgba(245,158,11,0.15);
+      --text-primary: #e8edf5; 
+      --text-secondary: #adc0dc; 
+      --text-muted: #7690b3;
+      --border: #1a2d4a; 
+      --success: #10b981; 
+      --error: #ef4444;
+      --cyan: #06b6d4;
+      --sidebar-w: 270px; 
+      --font-d: 'Oswald', sans-serif; 
+      --font-m: 'JetBrains Mono', monospace;
+      --font-s: 'DM Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { 
+      font-family: var(--font-s); 
+      background: var(--bg-base); 
+      color: var(--text-primary); 
+      display: flex; 
+      margin: 0; 
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Mobile Header */
+    #mobile-header {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 56px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      z-index: 20;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    .toggle-btn {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* Sidebar Navigation */
+    #sidebar { 
+      width: var(--sidebar-w); 
+      background: var(--bg-surface); 
+      border-right: 1px solid var(--border); 
+      position: fixed; 
+      height: 100vh; 
+      display: flex; 
+      flex-direction: column; 
+      z-index: 30;
+      transition: transform 0.3s ease;
+    }
+
+    .logo-wrap { 
+      padding: 24px 20px; 
+      border-bottom: 1px solid var(--border); 
+      font-family: var(--font-d); 
+      font-size: 22px; 
+      color: var(--accent); 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 1.5px; 
+    }
+    .logo-wrap small { 
+      font-size: 10px; 
+      color: var(--text-muted); 
+      display: block; 
+      letter-spacing: 0; 
+      font-family: var(--font-s);
+      margin-top: 2px;
+    }
+
+    .nav-group { padding: 16px 0; flex: 1; }
+    .nav-section { }
+    .nav-label {
+      font-size: 13px; text-transform: uppercase; color: #ff5c5c; padding: 14px 20px 8px;
+      letter-spacing: 1px; font-weight: 700; margin-top: 6px; border-top: 2px solid #3b82f6;
+      text-shadow: 0 0 10px rgba(255,60,60,0.5);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+    }
+    .nav-label:hover { color: #ff8a8a; }
+    .nav-chevron { font-size: 11px; transition: transform 0.2s ease; text-shadow: none; }
+    .nav-section.collapsed .nav-chevron { transform: rotate(-90deg); }
+    .nav-subsection { }
+    .nav-sublabel {
+      font-size: 12px; text-transform: uppercase; color: #ff5c5c; padding: 10px 20px 6px 28px;
+      letter-spacing: 1px; font-weight: 700; text-shadow: 0 0 8px rgba(255,60,60,0.4);
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+      user-select: none;
+    }
+    .nav-sublabel:hover { color: #ff8a8a; }
+    .nav-subsection.collapsed .nav-chevron { transform: rotate(-90deg); }
+    .nav-subsection .nav-item { padding-left: 32px; }
+    .nav-subsection.collapsed .nav-section-items { max-height: 0; }
+    .nav-section-items { max-height: 500px; overflow: hidden; transition: max-height 0.25s ease; }
+    .nav-section.collapsed .nav-section-items { max-height: 0; }
+    .nav-item { 
+      padding: 12px 20px; 
+      cursor: pointer; 
+      color: var(--text-secondary); 
+      transition: all 0.2s; 
+      border-left: 3px solid transparent; 
+      font-size: 14px; 
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-item:hover { background: var(--accent-dim); color: var(--text-primary); }
+    .nav-item.active { background: var(--accent-dim); border-left-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    #donate-fab {
+      position: fixed; bottom: 24px; right: 24px; z-index: 900;
+      background: var(--accent); color: #0b1220; border: none; border-radius: 30px;
+      padding: 12px 20px; font-family: var(--font-s); font-weight: 700; font-size: 13px;
+      cursor: pointer; box-shadow: 0 4px 16px rgba(245,158,11,0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    #donate-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,158,11,0.55); }
+    @media (max-width: 900px) { #donate-fab { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 12px; } }
+
+    /* Main Content Area */
+    #main { 
+      margin-left: var(--sidebar-w); 
+      flex: 1; 
+      padding: 30px 40px 60px; 
+      max-width: 1600px; 
+      transition: margin-left 0.3s ease;
+    }
+
+    .page { display: none; animation: fadeIn 0.25s ease-out; }
+    .page.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Components */
+    .card { 
+      background: var(--bg-surface); 
+      border: 1px solid var(--border); 
+      border-radius: 12px; 
+      margin-bottom: 24px; 
+      overflow: hidden; 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .card-header { 
+      padding: 16px 20px; 
+      border-bottom: 1px solid var(--border); 
+      background: rgba(255,255,255,0.015); 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    .card-header h2 { 
+      font-family: var(--font-d); 
+      font-size: 15px; 
+      text-transform: uppercase; 
+      color: var(--accent); 
+      margin: 0; 
+      letter-spacing: 1px; 
+    }
+    .card-body { padding: 20px 24px; }
+
+    /* Grid & Form Styling */
+    .grid-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.5px; }
+    
+    input, select { 
+      background: #0b1220; 
+      border: 1px solid #253d60; 
+      padding: 10px 12px; 
+      border-radius: 6px; 
+      color: #fff; 
+      font-family: var(--font-m); 
+      font-size: 13px; 
+      transition: all 0.2s; 
+    }
+    input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+    select option { background-color: #0f1729; color: #ffffff; }
+
+    /* Rebar Table */
+    .rebar-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .rebar-table th { text-align: left; font-size: 10px; color: var(--text-muted); padding: 10px 12px; text-transform: uppercase; border-bottom: 2px solid var(--border); font-weight: 700; }
+    .rebar-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+
+    /* Buttons & Actions */
+    .btn { 
+      padding: 12px 24px; 
+      border-radius: 6px; 
+      border: none; 
+      font-family: var(--font-d); 
+      cursor: pointer; 
+      font-weight: 600; 
+      text-transform: uppercase; 
+      transition: all 0.2s; 
+      letter-spacing: 0.5px; 
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+    .btn-add { background: var(--bg-panel); color: var(--text-secondary); font-size: 11px; border: 1px solid var(--border); padding: 6px 14px; }
+    .chip { background: var(--bg-panel); color: var(--text-secondary); font-size: 12px; font-weight: 600; border: 1px solid var(--border); padding: 7px 16px; border-radius: 20px; cursor: pointer; transition: all .15s ease; font-family: var(--font-s); }
+    .chip:hover { border-color: var(--accent); color: var(--text-primary); }
+    .chip.active { background: var(--accent); color: #0b1220; border-color: var(--accent); }
+    .btn-add:hover { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+    .btn-secondary { background: var(--bg-panel); color: var(--text-primary); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: #1e2c4a; }
+
+    /* Result Box & Badges */
+    .res-card { background: var(--bg-panel); border-left: 4px solid var(--accent); padding: 20px; border-radius: 8px; font-family: var(--font-m); border: 1px solid var(--border); margin-top: 20px; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px; }
+
+    hr { border: 0; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-base); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    
+    .norm-hint {
+      background: rgba(245,158,11,0.05);
+      border-left: 3px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: var(--font-m);
+      line-height: 1.5;
+    }
+    
+    table.detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    table.detail-table th, table.detail-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    table.detail-table th {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Bewehrungswahl-Ergebnistabellen: kompakter und zentriert statt über volle Kartenbreite */
+    #br-as-table, #br-asline-table, #br-asw-table { border-collapse: collapse; }
+    #br-as-table th, #br-as-table td,
+    #br-asline-table th, #br-asline-table td,
+    #br-asw-table th, #br-asw-table td {
+      padding: 6px 14px;
+      text-align: center;
+    }
+    #br-as-table th:first-child, #br-as-table td:first-child,
+    #br-asline-table th:first-child, #br-asline-table td:first-child,
+    #br-asw-table th:first-child, #br-asw-table td:first-child {
+      text-align: left;
+    }
+
+    /* Print View Improvements */
+    #print-header { display: none; }
+
+    /* Persistent context bar (Projekt/Adresse/Position) shown on every page */
+    #context-bar {
+      display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;
+      padding: 14px 18px; margin-bottom: 24px;
+      background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px;
+      border-left: 3px solid var(--accent);
+    }
+    .context-field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 180px; }
+    .context-field label { font-size: 10px; text-transform: uppercase; letter-spacing: .03em; color: var(--text-muted); font-weight: 700; }
+    .context-field input {
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 10px; color: var(--text-primary); font-family: var(--font-s); font-size: 13px;
+    }
+    .context-field input:focus { outline: none; border-color: var(--accent); }
+    @media (max-width: 900px) { #context-bar { flex-direction: column; align-items: stretch; } }
+
+    
+    @media print {
+      @page { size: A4 portrait; margin: 12mm; }
+      html, body { height: auto !important; }
+      body { background: #fff !important; color: #000 !important; font-size: 11px !important; }
+      #sidebar, #mobile-header, .btn, .btn-add, .norm-hint, #context-bar { display: none !important; }
+      #main { margin-left: 0 !important; padding: 0 !important; max-width: 100% !important; }
+      /* Kleine Helferlein: reine Nachschlagetabellen, kein Ausdruck vorgesehen */
+      #page-helper-anchlen, #page-helper-laplen, #page-helper-laplen-mesh, #page-helper-rebar-as, #page-helper-rebar-asline, #page-helper-rebar-asw { display: none !important; }
+      #save-card-anch, #save-card-susp, #disclaimer-modal, #donate-modal, #donate-fab { display: none !important; }
+      /* Betondeckung: nur die getroffene Auswahl als Text zeigen, nicht die ganze interaktive Liste */
+      #hc-scenario-groups { display: none !important; }
+      #hc-print-summary { display: block !important; }
+      
+      /* Print Header visible */
+      #print-header { display: block; margin-bottom: 14px; font-family: var(--font-s); }
+      #print-header h1 { font-family: var(--font-d); font-size: 16px; border-bottom: 1.5px solid #000; padding-bottom: 4px; margin-bottom: 8px; text-transform: uppercase; color: #000; margin-top: 0; }
+      #print-header .meta { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #000; }
+
+      /* Cards and Layout */
+      .card { border: none !important; box-shadow: none !important; margin-bottom: 9px !important; background: transparent !important; break-inside: avoid; }
+      .card-header { padding: 3px 0 !important; background: transparent !important; border-bottom: 1px solid #000 !important; }
+      .card-header h2 { color: #000 !important; font-size: 12px !important; }
+      .card-body { padding: 6px 0 !important; }
+      
+      .grid-form { gap: 2px 10px !important; grid-template-columns: repeat(3, 1fr) !important; }
+      #hc-diameter-row { grid-template-columns: 1fr !important; max-width: 220px !important; }
+      .form-group { flex-direction: row; align-items: baseline; justify-content: space-between; border-bottom: 1px dotted #ccc; padding-bottom: 2px; gap: 6px; min-width: 0; }
+      .form-group label { flex-shrink: 0; max-width: 55%; }
+      label { font-size: 9.5px !important; color: #000 !important; font-weight: normal; }
+      
+      /* Inputs to text */
+      input, select { 
+        background: transparent !important; border: none !important; color: #000 !important; font-weight: bold; 
+        padding: 0 !important; font-size: 10.5px !important; text-align: right; box-shadow: none !important;
+        -webkit-appearance: none; appearance: none;
+        white-space: normal !important; overflow-wrap: break-word; min-width: 0; flex: 1;
+      }
+      select { text-align-last: right; }
+      
+      /* Result Boxes */
+      .res-card { background: transparent !important; border: 1px solid #000 !important; color: #000 !important; padding: 9px !important; border-left-width: 3px !important; border-radius: 0 !important; margin-top: 7px !important; }
+      .res-card h3 { color: #000 !important; font-size: 12px !important; margin: 0 0 6px !important; }
+      table.detail-table { border-collapse: collapse !important; }
+      table.detail-table th { color: #000 !important; border-bottom: 1px solid #000 !important; }
+      table.detail-table th, table.detail-table td { border-color: #ccc !important; font-size: 9px !important; padding: 2px 5px !important; color: #000 !important; line-height: 1.25; }
+      table.detail-table tr { break-inside: avoid; }
+      
+      /* SVG B/W Optimizations — kein Rahmen, keine Titelzeile, kompakte Höhe */
+      .svg-print-crop { break-inside: avoid; margin: 2px auto; }
+      svg { background: #fff !important; border: none !important; filter: none !important; max-height: 320px !important; width: auto !important; max-width: 100% !important; display: block; margin: 4px auto !important; }
+      /* Kein pauschales Graustufen-Filter mehr — Rot (Fehler) und Grün (OK) wurden darin zu
+         einem fast identischen dunklen Grau verschmolzen und waren nicht mehr unterscheidbar. */
+      svg path, svg line, svg circle { stroke: #000 !important; }
+      /* Fehler-/NG-Kennzeichnungen: kräftig schwarz + verstärkt, damit sie eindeutig auffallen */
+      svg [stroke="#ef4444"] { stroke: #000 !important; stroke-width: 3 !important; }
+      svg [fill="#ef4444"]   { fill: #000 !important; }
+      /* OK/Erfolg-Kennzeichnungen: hellgrau, damit sie sich klar von Fehlern abheben */
+      svg [stroke="#10b981"] { stroke: #999 !important; }
+      svg [fill="#10b981"]   { fill: #ccc !important; }
+      svg text { fill: #000 !important; font-weight: bold !important; filter: none !important; }
+      svg text.svg-title { display: none !important; }
+      svg rect[fill="#0f1729"], svg rect[fill="#111d30"], svg rect[fill="#0b1220"] { fill: #fff !important; stroke: #333 !important; stroke-width: 1px; }
+      
+      /* Formeln / Details */
+      details.calc-steps { display: block !important; margin-top: 7px !important; border-top: 1px dashed #000 !important; padding-top: 5px !important; }
+      details.calc-steps summary { display: none !important; }
+      details.calc-steps > div { display: block !important; background: transparent !important; border: none !important; color: #000 !important; padding: 0 !important; font-size: 9px !important; font-family: var(--font-m) !important; line-height: 1.15 !important; }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 900px) {
+      #mobile-header { display: flex; }
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #main { margin-left: 0; padding: 70px 16px 40px; }
+      .grid-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header id="mobile-header">
+  <div style="font-family:var(--font-d); color:var(--accent); font-weight:700;">EC2·TOOL PRO</div>
+  <button class="toggle-btn" onclick="UI.toggleSidebar()">☰ Menü</button>
+</header>
+
+<aside id="sidebar">
+  <div class="logo-wrap">
+    EC2·TOOL PRO
+    <small>Engineering Suite · DIN EN 1992-1-1</small>
+    <small style="display:block; margin-top:2px; font-style:italic; opacity:.85;">Vom Praktiker für Praktiker</small>
+  </div>
+  <div class="nav-group">
+    <div class="nav-section" data-section="helferlein">
+      <div class="nav-label" onclick="UI.toggleNavSection(this)">
+        <span>Kleine Helferlein</span><span class="nav-chevron">▾</span>
+      </div>
+      <div class="nav-section-items">
+        <div class="nav-subsection" data-section="verankerung-uebergreifung">
+          <div class="nav-sublabel" onclick="UI.toggleNavSection(this)">
+            <span>Verankerungs- & Übergreifungslängen</span><span class="nav-chevron">▾</span>
+          </div>
+          <div class="nav-section-items">
+            <div class="nav-item" data-page="helper-anchlen">📏 Verankerungslänge Rundst.</div>
+            <div class="nav-item" data-page="helper-laplen">📏 Übergreifungslänge Rundst.</div>
+            <div class="nav-item" data-page="helper-laplen-mesh">📏 Übergreifungslänge Matten</div>
+          </div>
+        </div>
+        <div class="nav-item" data-page="helper-cover">🛡️ Betondeckung (Expositionsklasse)</div>
+        <div class="nav-subsection" data-section="bewehrungswahl">
+          <div class="nav-sublabel" onclick="UI.toggleNavSection(this)">
+            <span>Bewehrungswahl</span><span class="nav-chevron">▾</span>
+          </div>
+          <div class="nav-section-items">
+            <div class="nav-item" data-page="helper-rebar-as">🔢 As-Wahl (Einzelstäbe)</div>
+            <div class="nav-item" data-page="helper-rebar-asline">📐 as-Wahl (Flächenbewehrung)</div>
+            <div class="nav-item" data-page="helper-rebar-asw">🔗 Bügelwahl</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-section" data-section="nachweise">
+      <div class="nav-label" onclick="UI.toggleNavSection(this)">
+        <span>Nachweise</span><span class="nav-chevron">▾</span>
+      </div>
+      <div class="nav-section-items">
+        <div class="nav-item active" data-page="anchorage">📌 Endverankerung (EC2 8.4)</div>
+        <div class="nav-item" data-page="suspension">⚡ Hochhängebewehrung (EC2 9.2.5)</div>
+      </div>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <button class="btn btn-secondary" onclick="window.print()" style="width:100%; font-size:11px; padding:8px;">🖨️ Bericht drucken</button>
+    <div style="text-align:center; margin-top:10px;">
+      <a href="#" onclick="UI.toggleDisclaimer(); return false;" style="font-size:10px; color:var(--text-muted); text-decoration:underline; cursor:pointer;">⚖️ Haftungsausschluss</a>
+    </div>
+  </div>
+</aside>
+
+<div id="disclaimer-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; max-width:560px; max-height:80vh; overflow-y:auto; padding:28px; position:relative;">
+    <h2 style="font-family:var(--font-d); color:var(--accent); margin:0 0 16px; font-size:18px;">⚖️ Haftungsausschluss</h2>
+    <div style="font-size:13px; line-height:1.7; color:var(--text-secondary);">
+      <p>Dieses Tool wurde nach bestem Wissen auf Grundlage von DIN EN 1992-1-1 (Eurocode 2) und dem deutschen Nationalen Anhang erstellt. Es dient ausschließlich als <b>Hilfsmittel zur überschlägigen Ermittlung</b> und ersetzt nicht die eigenverantwortliche fachliche Prüfung durch einen qualifizierten Tragwerksplaner oder Prüfingenieur.</p>
+      <p>Für die Richtigkeit, Vollständigkeit und Aktualität der Berechnungen, der hinterlegten Normwerte sowie deren Anwendbarkeit auf den konkreten Einzelfall wird <b>keine Gewähr übernommen</b>. Die Nutzung erfolgt auf eigene Verantwortung.</p>
+      <p>Jegliche Haftung für Schäden, die aus der Nutzung dieses Tools entstehen — insbesondere aus fehlerhaften Eingaben, Programmfehlern, veralteten Normwerten oder einer unterlassenen fachlichen Prüfung der Ergebnisse — ist, soweit gesetzlich zulässig, ausgeschlossen.</p>
+      <p>Sämtliche Ergebnisse sind vor der praktischen Anwendung eigenständig zu verifizieren und von einer bauaufsichtlich hierzu berechtigten Person zu prüfen und freizugeben.</p>
+    </div>
+    <button class="btn btn-primary" onclick="UI.toggleDisclaimer()" style="margin-top:20px; width:100%;">Verstanden</button>
+  </div>
+</div>
+
+<button id="donate-fab" onclick="UI.toggleDonate()" title="Unterstütze die Weiterentwicklung">
+  💛 Unterstützen
+</button>
+
+<div id="donate-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; max-width:420px; padding:28px; position:relative; text-align:center;">
+    <h2 style="font-family:var(--font-d); color:var(--accent); margin:0 0 16px; font-size:18px;">💛 Unterstütze die Weiterentwicklung</h2>
+    <p style="font-size:13px; line-height:1.7; color:var(--text-secondary);">
+      Dieses Tool entsteht in der Freizeit und bleibt kostenlos nutzbar. Wenn es dir hilft und du die Weiterentwicklung unterstützen möchtest, freue ich mich über eine freiwillige Spende.
+    </p>
+    <p style="font-size:12px; color:var(--text-muted); margin-top:14px;">
+      (Spendenlink folgt in Kürze)
+    </p>
+    <button class="btn btn-primary" onclick="UI.toggleDonate()" style="margin-top:16px; width:100%;">Schließen</button>
+  </div>
+</div>
+
+<main id="main">
+  <div id="print-header">
+    <h1>Statische Berechnung · EC2·TOOL PRO</h1>
+    <div class="meta">
+      <div>Projekt: <span id="print-project">-</span></div>
+      <div>Position: <span id="print-position">-</span></div>
+      <div>Datum: <span id="print-date"></span></div>
+    </div>
+  </div>
+
+  <div id="context-bar">
+    <div class="context-field">
+      <label>Projekt</label>
+      <input type="text" id="project_name" placeholder="z.B. BV Musterstadt" oninput="Data.sync()">
+    </div>
+    <div class="context-field">
+      <label>Adresse</label>
+      <input type="text" id="project_address" placeholder="z.B. Musterstraße 1, 12345 Musterstadt" oninput="Data.sync()">
+    </div>
+    <div class="context-field">
+      <label>Position</label>
+      <input type="text" id="position_current" placeholder="z.B. Pos. 101 - Hauptträger Achse A" oninput="Data.sync(); Storage.render('anch'); Storage.render('susp');">
+    </div>
+  </div>
+
+  <section id="page-helper-anchlen" class="page">
+    <div class="card">
+      <div class="card-header"><h2>📏 Verankerungslänge — Rundstahl B500</h2></div>
+      <div class="card-body">
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">BETONGÜTE</div>
+        <div id="hl-grade-buttons-anch" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">DURCHMESSER</div>
+        <div id="hl-diameter-buttons-anch" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">VERBUNDBEDINGUNG (EC2 8.4.2)</div>
+        <div id="hl-bond-buttons-anch" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+
+        <div style="display:flex; align-items:center; justify-content:center; gap:20px;">
+          <div class="grid-form" style="max-width:140px; grid-template-columns: 1fr; margin:0;">
+            <div class="form-group">
+              <label>Ausnutzung A<sub>s,erf</sub>/A<sub>s,vorh</sub> [%]</label>
+              <input type="number" id="hl-ausnutzung-anch" value="100" min="10" max="100" step="5"
+                title="σ_sd = f_yd · (A_s,erf/A_s,vorh). Bei 100% = volle Ausnutzung (Regelfall, konservativ)."
+                oninput="HelperLengths.setAusnutzung(this.value)">
+            </div>
+          </div>
+          <div style="width:1px; align-self:stretch; background:var(--border);"></div>
+          <label style="display:flex; align-items:center; gap:8px; font-size:12px; text-transform:none; letter-spacing:normal; font-weight:400; color:var(--text-secondary); cursor:pointer; white-space:nowrap;">
+            <input type="checkbox" id="hl-druckzone-anch" onchange="HelperLengths.setDruckzone(this.checked)" style="width:16px; height:16px; accent-color:var(--accent); cursor:pointer;">
+            Verankerung in der Druckzone
+          </label>
+        </div>
+
+        <div class="norm-hint" style="margin-top:14px;">
+          ℹ️ Referenzwerte für <b>voll ausgenutzte Bewehrung</b> (σ<sub>sd</sub>=f<sub>yd</sub>) mit Grundwerten α₂=α₃=α₅=1,0 (keine projektspezifischen Abminderungen durch Betondeckung, Querbewehrung oder Querdruck). Für den tatsächlichen Nachweis am Bauteil bitte "Endverankerung" verwenden — dort fließen diese Abminderungen mit ein.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>Verankerungslänge l<sub>bd</sub> [cm] — EC2 8.4.4</h2></div>
+      <div class="card-body">
+        <table class="detail-table" style="width:100%;" id="hl-anchorage-table"></table>
+        <div class="norm-hint" id="hl-druckzone-hint-anch" style="margin-top:12px; display:none;">
+          ℹ️ In der Druckzone: l<sub>b,min</sub>=max(0,6·l<sub>b,rqd</sub>; 10·Ø) statt 0,3-Faktor bei Zugstäben. Haken, Winkelhaken und Schlaufen sind bei Druckstäben <b>nicht zulässig</b> — nur gerade Stabenden.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-helper-laplen" class="page">
+    <div class="card">
+      <div class="card-header"><h2>📏 Übergreifungslänge — Rundstahl B500</h2></div>
+      <div class="card-body">
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">BETONGÜTE</div>
+        <div id="hl-grade-buttons-lap" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">DURCHMESSER</div>
+        <div id="hl-diameter-buttons-lap" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">VERBUNDBEDINGUNG (EC2 8.4.2)</div>
+        <div id="hl-bond-buttons-lap" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+
+        <div style="display:flex; align-items:center; justify-content:center; gap:20px;">
+          <div class="grid-form" style="max-width:140px; grid-template-columns: 1fr; margin:0;">
+            <div class="form-group">
+              <label>Ausnutzung A<sub>s,erf</sub>/A<sub>s,vorh</sub> [%]</label>
+              <input type="number" id="hl-ausnutzung-lap" value="100" min="10" max="100" step="5"
+                title="σ_sd = f_yd · (A_s,erf/A_s,vorh). Bei 100% = volle Ausnutzung (Regelfall, konservativ)."
+                oninput="HelperLengths.setAusnutzung(this.value)">
+            </div>
+          </div>
+          <div style="width:1px; align-self:stretch; background:var(--border);"></div>
+          <label style="display:flex; align-items:center; gap:8px; font-size:12px; text-transform:none; letter-spacing:normal; font-weight:400; color:var(--text-secondary); cursor:pointer; white-space:nowrap;">
+            <input type="checkbox" id="hl-druckzone-lap" onchange="HelperLengths.setDruckzone(this.checked)" style="width:16px; height:16px; accent-color:var(--accent); cursor:pointer;">
+            Übergreifung in der Druckzone
+          </label>
+        </div>
+
+        <div class="norm-hint" style="margin-top:14px;">
+          ℹ️ Referenzwerte für <b>voll ausgenutzte Bewehrung</b> (σ<sub>sd</sub>=f<sub>yd</sub>) mit Grundwerten α₂=α₃=α₅=1,0 (keine projektspezifischen Abminderungen durch Betondeckung, Querbewehrung oder Querdruck).
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>Übergreifungslänge l<sub>0</sub> [cm] — EC2 8.7.3, Tab. 8.3</h2></div>
+      <div class="card-body">
+        <table class="detail-table" style="width:100%;" id="hl-lap-table"></table>
+        <div class="norm-hint" style="margin-top:12px;">
+          ℹ️ α₆ nach EC2 Tabelle 8.3: Anteil gestoßener Stäbe an einem Schnitt &lt;25% → α₆=1,0 · 25–&lt;50% → α₆=1,4 · ≥50% → α₆=1,5.
+        </div>
+        <div class="norm-hint" id="hl-druckzone-hint-lap" style="margin-top:12px; display:none; border-color:var(--accent);">
+          ℹ️ In der Druckzone dürfen <b>alle</b> Stäbe im selben Schnitt gestoßen werden (α₆=1,0, unabhängig vom Stoßanteil). Für l<sub>0,min</sub> wurde hier analog zur Verankerung der Faktor 0,6 statt 0,3 angesetzt — dies ist eine <b>Analogieannahme</b> und in den geprüften Quellen nicht 1:1 für die Übergreifung belegt. Bitte im Einzelfall gegenprüfen.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-helper-laplen-mesh" class="page">
+    <div class="card">
+      <div class="card-header"><h2>📏 Übergreifungslänge l<sub>0</sub> [cm] — Lagermatten (Zwei-Ebenen-Stoß)</h2></div>
+      <div class="card-body">
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">MATTENFAMILIE</div>
+        <div id="hm-family-buttons" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">MATTE</div>
+        <div id="hm-type-buttons" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
+
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">VERBUNDBEDINGUNG</div>
+        <div id="hm-bond-buttons" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:8px;"></div>
+
+        <div class="norm-hint" style="margin-top:14px;">
+          ℹ️ Werte gelten für a<sub>s,erf</sub>/a<sub>s,vorh</sub>=1,0 und l<sub>0,min</sub> ≥ {s<sub>quer</sub>; 200mm}. Nach Schneider Bautabellen, Tab. 13.18. Bei 2-achsiger Beanspruchung ist die Überlappung wegen der Randeinsparung ggf. auf 50cm bzw. 35cm zu vergrößern (siehe Fußnoten in der Ergebnistabelle).
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2 id="hm-result-title">Übergreifungslänge — ausgewählte Matte</h2></div>
+      <div class="card-body">
+        <table class="detail-table" style="width:100%;" id="hm-result-table"></table>
+        <div id="hm-min-quer" style="margin-top:14px; font-size:12px; color:var(--text-secondary);"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="page-helper-cover" class="page">
+    <div class="card">
+      <div class="card-header"><h2>🔍 Expositionsklasse(n) auswählen (EC2 Tabelle 4.1)</h2></div>
+      <div class="card-body">
+        <div class="norm-hint" style="margin-bottom:14px;">
+          ℹ️ Mehrfachauswahl möglich — ein Bauteil ist oft mehreren Umgebungsbedingungen gleichzeitig ausgesetzt (z. B. XC4 + XF1 + XA1). Für die Betondeckung ist jeweils die <b>schärfste zutreffende Klasse</b> maßgebend (EC2 4.1(1)).
+        </div>
+        <div id="hc-scenario-groups"></div>
+        <div id="hc-print-summary" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>🛡️ Betondeckung (Standardfall S3)</h2></div>
+      <div class="card-body">
+        <div class="grid-form" id="hc-diameter-row" style="max-width:320px; margin:0 auto;">
+          <div class="form-group">
+            <label>Stabdurchmesser Ø [mm]</label>
+            <select id="hc-diameter">
+              <option value="8">8</option>
+              <option value="10">10</option>
+              <option value="12" selected>12</option>
+              <option value="14">14</option>
+              <option value="16">16</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+              <option value="28">28</option>
+              <option value="32">32</option>
+              <option value="40">40</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="hc-result" style="margin-top:22px;"></div>
+
+        <div class="norm-hint" style="margin-top:16px;">
+          ℹ️ <b>Standardfall</b> nach dt. NA: Anforderungsklasse S3 (50 Jahre Nutzungsdauer, allgemeiner Hochbau, Regelausführung nach DIN EN 13670/DIN 1045-3). Δc<sub>dev</sub>=10mm (Standard-Vorhaltemaß). Für Sonderfälle (100 Jahre Nutzungsdauer, besondere Qualitätssicherung, Platten-Sonderregel etc.) ist eine gesonderte Prüfung nach Tabelle 4.3DE erforderlich — hier nicht abgebildet. XF/XA/XM wirken sich auf die Betonzusammensetzung (Güte, w/z-Wert, Luftgehalt) aus, nicht auf c<sub>nom</sub> — hier nur zur vollständigen Dokumentation erfasst.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-helper-rebar-as" class="page">
+    <div class="card">
+      <div class="card-header"><h2>🔢 As-Wahl — Einzelstäbe (z. B. Feld-/Auflagerbewehrung)</h2></div>
+      <div class="card-body">
+        <div class="grid-form" style="max-width:160px; margin:0 auto;">
+          <div class="form-group">
+            <label>Erf. A<sub>s</sub> [cm²]</label>
+            <input type="number" id="br-as-input" value="10.0" step="0.1" min="0" oninput="HelperRebar.renderAs(); HelperRebar.renderAsFill();">
+          </div>
+        </div>
+        <table class="detail-table" style="width:auto; max-width:440px; margin:16px auto 0;" id="br-as-table"></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>🧩 Bewehrung zusammenstellen</h2></div>
+      <div class="card-body">
+        <div style="display:flex; gap:10px; align-items:flex-end; justify-content:center; flex-wrap:wrap;">
+          <div class="form-group" style="max-width:110px;">
+            <label>= A<sub>s</sub></label>
+            <div id="br-as-fill-preview" style="padding:9px 0; font-weight:700; color:var(--accent); font-size:14px;">– cm²</div>
+          </div>
+          <div class="form-group" style="max-width:110px;">
+            <label>Durchmesser</label>
+            <select id="br-as-fill-d" onchange="HelperRebar.updateAsFillPreview()"></select>
+          </div>
+          <div class="form-group" style="max-width:90px;">
+            <label>Anzahl</label>
+            <input type="number" id="br-as-fill-n" value="2" min="-50" step="1" oninput="HelperRebar.updateAsFillPreview()" title="Positive Zahl = hinzufügen, negative Zahl = von diesem Durchmesser wieder abziehen">
+          </div>
+          <button class="btn-add" onclick="HelperRebar.addAsFillItem()" style="padding:9px 16px;">Übernehmen</button>
+        </div>
+
+        <table class="detail-table" style="width:auto; max-width:440px; margin:16px auto 0;" id="br-as-fill-list"></table>
+
+        <div id="br-as-fill-summary" style="margin-top:16px; text-align:center;"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-helper-rebar-asline" class="page">
+    <div class="card">
+      <div class="card-header"><h2>📐 as-Wahl — Flächenbewehrung verteilt (z. B. Platten)</h2></div>
+      <div class="card-body">
+        <div class="grid-form" style="max-width:160px; margin:0 auto;">
+          <div class="form-group">
+            <label>Erf. a<sub>s</sub> [cm²/m]</label>
+            <input type="number" id="br-asline-input" value="6.0" step="0.1" min="0" oninput="HelperRebar.renderAsLine(); HelperRebar.renderAsLineFill();">
+          </div>
+        </div>
+        <table class="detail-table" style="width:auto; max-width:400px; margin:16px auto 0;" id="br-asline-table"></table>
+        <div class="norm-hint" style="margin-top:12px;">
+          ℹ️ Abstand wird auf ein praktikables 0,5cm-Raster abgerundet (konservativ, a<sub>s,vorh</sub> ≥ a<sub>s,erf</sub> bleibt erfüllt). Normative Höchst-/Mindestabstände (EC2 9.3.1.1 u. a., abhängig von Bauteildicke) sind hier nicht geprüft.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>🧩 Bewehrung zusammenstellen</h2></div>
+      <div class="card-body">
+        <div style="display:flex; gap:10px; align-items:flex-end; justify-content:center; flex-wrap:wrap;">
+          <div class="form-group" style="max-width:110px;">
+            <label>= a<sub>s</sub></label>
+            <div id="br-asline-fill-preview" style="padding:9px 0; font-weight:700; color:var(--accent); font-size:14px;">– cm²/m</div>
+          </div>
+          <div class="form-group" style="max-width:110px;">
+            <label>Durchmesser</label>
+            <select id="br-asline-fill-d" onchange="HelperRebar.updateAsLineFillPreview()"></select>
+          </div>
+          <div class="form-group" style="max-width:90px;">
+            <label>Abstand [cm]</label>
+            <input type="number" id="br-asline-fill-s" value="15" min="5" step="0.5" oninput="HelperRebar.updateAsLineFillPreview()">
+          </div>
+          <button class="btn-add" onclick="HelperRebar.addAsLineFillItem()" style="padding:9px 16px;">+ Hinzufügen</button>
+        </div>
+
+        <table class="detail-table" style="width:auto; max-width:440px; margin:16px auto 0;" id="br-asline-fill-list"></table>
+
+        <div id="br-asline-fill-summary" style="margin-top:16px; text-align:center;"></div>
+        <div class="norm-hint" style="margin-top:12px;">
+          ℹ️ Nützlich z. B. für Grundbewehrung + Zulagestäbe (unterschiedliche Ø/Abstände kombiniert).
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-helper-rebar-asw" class="page">
+    <div class="card">
+      <div class="card-header"><h2>🔗 Bügelwahl — Schubbewehrung</h2></div>
+      <div class="card-body">
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">SCHNITTIGKEIT</div>
+        <div id="br-asw-legs-buttons" style="display:flex; justify-content:center; gap:8px; margin-bottom:16px;"></div>
+        <div class="grid-form" style="max-width:160px; margin:0 auto;">
+          <div class="form-group">
+            <label>Erf. a<sub>sw</sub> [cm²/m]</label>
+            <input type="number" id="br-asw-input" value="8.0" step="0.1" min="0" oninput="HelperRebar.renderAsw()">
+          </div>
+        </div>
+        <table class="detail-table" style="width:auto; max-width:400px; margin:16px auto 0;" id="br-asw-table"></table>
+        <div class="norm-hint" style="margin-top:12px;">
+          ℹ️ Abstand wird auf ein praktikables 0,5cm-Raster abgerundet. Mindest-/Höchstlängsabstände der Bügel (EC2 9.2.2, abhängig von cot θ und Bauteilhöhe) sind hier nicht geprüft — bitte separat sicherstellen.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-anchorage" class="page">
+    <div class="card" id="save-card-anch">
+      <div class="card-header"><h2>💾 Diese Position speichern & laden</h2></div>
+      <div class="card-body">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px;">
+          <div style="flex:1; min-width:220px; font-size:12px; color:var(--text-muted);">
+            Speichert unter der <b>Position</b> aus der Kopfzeile ganz oben.
+          </div>
+          <button class="btn btn-primary" style="margin-bottom:2px;" onclick="Storage.save('anch')">💾 Im Browser speichern</button>
+          <button class="btn-add" style="margin-bottom:2px;padding:9px 14px;" onclick="Storage.exportCurrent('anch')">⭳ Als Datei exportieren</button>
+          <button class="btn-add" style="margin-bottom:2px;padding:9px 14px;" onclick="document.getElementById('import_file_anch').click()">⭱ Datei importieren</button>
+          <input type="file" id="import_file_anch" accept="application/json,.json" style="display:none;" onchange="Storage.importFile(this, 'anch')">
+        </div>
+        <table class="detail-table" style="width:100%;">
+          <thead><tr><th>Projekt</th><th>Name</th><th>Gespeichert am</th><th style="text-align:right;">Aktion</th></tr></thead>
+          <tbody id="saved-positions-body-anch"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>📌 Parameter am Endauflager (Verschiebemaßregel)</h2></div>
+      <div class="card-body">
+        <div class="grid-form" style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px dashed var(--border);">
+          <div class="form-group">
+            <label>Betongüte (EC2 Tab. 3.1)</label>
+            <select id="grade_anch" onchange="HelperCover.render()">
+              <option value="C20/25">C20/25</option>
+              <option value="C25/30" selected>C25/30</option>
+              <option value="C30/37">C30/37</option>
+              <option value="C35/45">C35/45</option>
+              <option value="C40/50">C40/50</option>
+              <option value="C45/55">C45/55</option>
+              <option value="C50/60">C50/60</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Breite Hauptträger B<sub>1</sub> [cm]</label>
+            <input type="number" id="b_anch" value="30" step="1" min="10" title="Wird für die α₅-Querdruckberechnung bei direkter Lagerung benötigt.">
+          </div>
+          <div class="form-group">
+            <label>Betondeckung c<sub>nom</sub> [mm]</label>
+            <input type="number" id="cnom_anch" value="25" step="5" min="10">
+          </div>
+        </div>
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Lagerungsart</label>
+            <select id="lager_typ" onchange="UI.toggleAlpha5Field()" title="NCI zu 9.2.1.4: Bei direkter Lagerung darf der Bemessungswert der Verankerungslänge mit dem Faktor 2/3 reduziert werden (l_b,min = max{0,2·l_b,rqd; 6,7·Ø} statt max{0,3·l_b,rqd; 10·Ø; 100mm}).">
+              <option value="indirekt">Indirekte Lagerung (z. B. Unterzug in Unterzug)</option>
+              <option value="direkt">Direkte Lagerung (z. B. auf Wand/Stütze)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Querkraft V<sub>Ed</sub> am Auflager [kN]</label>
+            <input type="number" id="vEd_anch" value="662" step="10"
+              title="Bemessungsquerkraft am Auflager nach Verschiebemaßregel (EC2 9.2.1.3)">
+          </div>
+          <div class="form-group">
+            <label>Druckstrebenwinkel — Eingabemodus</label>
+            <select id="theta_mode" onchange="UI.updateThetaLabel()">
+              <option value="cot">cot θ (direkt)</option>
+              <option value="deg" selected>θ in Grad [°]</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="theta_label">Winkel θ [°]</label>
+            <input type="number" id="cot_theta" value="23" step="0.5" min="21.8" max="45"
+              title="cot θ oder Winkel θ [°] – je nach gewähltem Modus. DIN EN 1992-1-1/NA: 1,0 ≤ cot θ ≤ 2,5 (21,8° ≤ θ ≤ 45°)">
+          </div>
+          <div class="form-group">
+            <label>Erf. A<sub>s</sub> Biegung am Auflager [cm²]</label>
+            <input type="number" id="asErf_anch" step="0.5" placeholder="optional"
+              title="Erforderliche Biegebewehrung am Auflager aus Momentennachweis.">
+          </div>
+          <div class="form-group">
+            <label>Auflagerbreite b<sub>sup</sub> [cm]</label>
+            <input type="number" id="supWidth" value="24" step="2" min="5">
+          </div>
+          <div class="form-group" id="fEd_alpha5_group">
+            <label>Auflagerkraft F<sub>Ed</sub> für α₅ [kN]</label>
+            <input type="number" id="fEd_alpha5" placeholder="z.B. 662" step="10" min="0"
+              title="Auflagerkraft zur Ermittlung des Querdrucks p = FEd/(bsup·B1). Nur bei direkter Lagerung physikalisch wirksam.">
+            <small id="fEd_alpha5_hint" style="color:var(--text-muted); display:none;">Nur bei direkter Lagerung wirksam (Querdruck durch Auflagerreaktion) — bei indirekter Lagerung wird α₅=1,0 angesetzt.</small>
+          </div>
+          <div class="form-group">
+            <label>Bügel-Ø im Auflagerbereich [mm] <span style="color:var(--accent)">(α₃)</span></label>
+            <select id="alpha3_d">
+              <option value="0">— nicht ansetzen —</option>
+              <option value="8">8 mm</option>
+              <option value="10">10 mm</option>
+              <option value="12">12 mm</option>
+              <option value="14">14 mm</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Anzahl Bügel in l<sub>bd</sub></label>
+            <input type="number" id="alpha3_n" value="2" step="1" min="0"
+              title="Anzahl der Bügel innerhalb der Verankerungslänge l_bd.">
+          </div>
+          <div class="form-group">
+            <label>Schnittigkeit Bügel</label>
+            <select id="alpha3_legs">
+              <option value="2">2-schnittig</option>
+              <option value="4" selected>4-schnittig</option>
+            </select>
+          </div>
+        </div>
+        <div class="norm-hint">
+          💡 <b>Rechenweg EC2 9.2.1.3 (Verschiebemaßregel):</b><br>
+          F<sub>td</sub> = V<sub>Ed</sub> × cot θ / 2 &nbsp;→&nbsp;
+          A<sub>s,anch,erf</sub> = F<sub>td</sub> / f<sub>yd</sub> &nbsp;→&nbsp;
+          σ<sub>sd</sub> = (F<sub>td</sub> × 10) / A<sub>s,vorh</sub> [N/mm²] &nbsp;→&nbsp;
+          l<sub>bd</sub> aus σ<sub>sd</sub> und f<sub>bd</sub><br>
+          Die <b>Längsstäbe in der Tabelle</b> sind die tatsächlich am Auflager vorhandenen Stäbe. Prüft ob diese auf l<sub>vorh</sub> = b<sub>sup</sub> − c<sub>nom</sub> verankert werden können.
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <h2>📊 Längsbewehrung am Auflager</h2>
+        <button class="btn btn-add" onclick="UI.addRow('rebar-body-anch')">+ Bewehrungsposition</button>
+      </div>
+      <table class="rebar-table">
+        <thead>
+          <tr>
+            <th>Anzahl n</th>
+            <th>Ø [mm]</th>
+            <th>Endausbildung</th>
+            <th>Verbund <span style="color:var(--accent)">(η₁)</span></th>
+            <th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody id="rebar-body-anch"></tbody>
+      </table>
+    </div>
+
+    <button class="btn btn-primary" onclick="Logic.calcAnchorage()">🔍 Nachweis führen</button>
+    <div id="res-anch"></div>
+  </section>
+
+  <!-- PAGE SUSPENSION -->
+  <section id="page-suspension" class="page">
+    <div class="card" id="save-card-susp">
+      <div class="card-header"><h2>💾 Diese Position speichern & laden</h2></div>
+      <div class="card-body">
+        <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px;">
+          <div style="flex:1; min-width:220px; font-size:12px; color:var(--text-muted);">
+            Speichert unter der <b>Position</b> aus der Kopfzeile ganz oben.
+          </div>
+          <button class="btn btn-primary" style="margin-bottom:2px;" onclick="Storage.save('susp')">💾 Im Browser speichern</button>
+          <button class="btn-add" style="margin-bottom:2px;padding:9px 14px;" onclick="Storage.exportCurrent('susp')">⭳ Als Datei exportieren</button>
+          <button class="btn-add" style="margin-bottom:2px;padding:9px 14px;" onclick="document.getElementById('import_file_susp').click()">⭱ Datei importieren</button>
+          <input type="file" id="import_file_susp" accept="application/json,.json" style="display:none;" onchange="Storage.importFile(this, 'susp')">
+        </div>
+        <table class="detail-table" style="width:100%;">
+          <thead><tr><th>Projekt</th><th>Name</th><th>Gespeichert am</th><th style="text-align:right;">Aktion</th></tr></thead>
+          <tbody id="saved-positions-body-susp"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>📐 Bauteil & Querschnitt (Hauptträger)</h2></div>
+      <div class="card-body">
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Betongüte (EC2 Tab. 3.1)</label>
+            <select id="grade_susp" onchange="HelperCover.render()">
+              <option value="C20/25">C20/25</option>
+              <option value="C25/30" selected>C25/30</option>
+              <option value="C30/37">C30/37</option>
+              <option value="C35/45">C35/45</option>
+              <option value="C40/50">C40/50</option>
+              <option value="C45/55">C45/55</option>
+              <option value="C50/60">C50/60</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Höhe Hauptträger H<sub>1</sub> [cm]</label>
+            <input type="number" id="h_susp" value="60" step="1" min="10">
+          </div>
+          <div class="form-group">
+            <label>Breite Hauptträger B<sub>1</sub> [cm]</label>
+            <input type="number" id="b_susp" value="30" step="1" min="10">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>⚡ Last & Geometrie (Indirekte Auflagerung EC2 9.2.5)</h2></div>
+      <div class="card-body">
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Auflagerkraft / Einhängelast F<sub>Ed</sub> [kN]</label>
+            <input type="number" id="fEd_susp" value="150" step="10" title="Bemessungswert der Auflagerkraft des Nebenträgers">
+          </div>
+          <div class="form-group">
+            <label>Höhe Nebenträger H<sub>2</sub> [cm]</label>
+            <input type="number" id="h_nt" value="40" step="5" min="10">
+          </div>
+          <div class="form-group">
+            <label>Breite Nebenträger B<sub>2</sub> [cm]</label>
+            <input type="number" id="b_nt" value="20" step="2" min="10">
+          </div>
+        </div>
+        <div class="norm-hint" id="indirectSupportHint">
+          💡 <strong>Prüfung indirekte Auflagerung (NA 1.5.2.26):</strong> <span id="check_indirect">Berechnung läuft...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h2>🔄 Vertikale Aufhängebewehrung (Bügel)</h2></div>
+      <div class="card-body">
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Erf. a<sub>sw</sub> Schub [cm²/m]</label>
+            <input type="number" id="as_sw_erf" value="8.0" step="0.5" min="0"
+              title="Erforderliche Schubbewehrung aus der statischen Berechnung des Hauptträgers. Wird auf die Länge b₂ + 2×Auslagerungszone bezogen und zur Hochhängebewehrung addiert.">
+          </div>
+          <div class="form-group">
+            <label>Bügeldiameter Ø<sub>sw</sub> [mm]</label>
+            <select id="d_susp">
+              <option value="8">8 mm</option>
+              <option value="10" selected>10 mm</option>
+              <option value="12">12 mm</option>
+              <option value="14">14 mm</option>
+              <option value="16">16 mm</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Schnittigkeit (Bügel)</label>
+            <select id="legs">
+              <option value="2">2-schnittig</option>
+              <option value="4" selected>4-schnittig</option>
+              <option value="6">6-schnittig</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Bügel im Kreuzungsbereich n<sub>KZ</sub> <span style="color:var(--accent)">★</span></label>
+            <input type="number" id="n_susp" value="2" step="1" min="1"
+              title="Anzahl Bügel im direkten Kreuzungsbereich (Breite b₂). Restliche Bügel werden symmetrisch ausgelagert.">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ZUSÄTZLICHE HORIZONTALBEWEHRUNG (NEU) -->
+    <div class="card">
+      <div class="card-header"><h2>🔗 Stegbewehrung Hauptträger (Zus. Horizontalbewehrung)</h2></div>
+      <div class="card-body">
+        <div class="grid-form">
+          <div class="form-group">
+            <label>Vorh. Stegbewehrung n<sub>h</sub> (je Seite)</label>
+            <input type="number" id="n_horiz" value="1" step="1" min="0" title="Anzahl gerader Horizontalstäbe JE SEITE (1-schnittig, symmetrisch über die Höhe verteilt). Gesamtmenge = 2 × n_h.">
+          </div>
+          <div class="form-group">
+            <label>Durchmesser Stegbewehrung Ø<sub>h</sub> [mm]</label>
+            <select id="d_horiz">
+              <option value="8">8 mm</option>
+              <option value="10" selected>10 mm</option>
+              <option value="12">12 mm</option>
+              <option value="14">14 mm</option>
+            </select>
+          </div>
+        </div>
+        <div class="norm-hint" style="margin-top:12px;">
+          💡 <b>Hintergrund NCI zu EC2 9.2.5 (2):</b><br>
+          Werden Aufhängebügel außerhalb der Kreuzungsbreite $b_2$ in der Auslagerungszone $h_2/3$ angeordnet, ist eine über die Höhe verteilte <b>zusätzliche Stegbewehrung des Hauptträgers</b> erforderlich, deren Gesamtquerschnittsfläche dem Gesamtquerschnitt dieser ausgelagerten Bügel entspricht.<br><br>
+          <i>Hinweis zur Anordnung:</i> Das berechnete A<sub>s,h,erf</sub> ist die <b>Gesamtfläche</b> und ist zwingend <b>symmetrisch auf beide Seiten</b> des Hauptträgers zu verteilen — als gerade, durchlaufende Einzelstäbe, 1-schnittig je Seite (keine Schlaufen).
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" onclick="Logic.calcSuspension()">🔍 Nachweis nach EC2 9.2.5 führen</button>
+    <div id="res-susp"></div>
+  </section>
+</main>
+
+<script>
+  const Materials = {
+    concrete: {
+      'C20/25': { fck: 20, fctm: 2.21, get fctk05() { return 0.7 * this.fctm; } },
+      'C25/30': { fck: 25, fctm: 2.56, get fctk05() { return 0.7 * this.fctm; } },
+      'C30/37': { fck: 30, fctm: 2.90, get fctk05() { return 0.7 * this.fctm; } },
+      'C35/45': { fck: 35, fctm: 3.21, get fctk05() { return 0.7 * this.fctm; } },
+      'C40/50': { fck: 40, fctm: 3.51, get fctk05() { return 0.7 * this.fctm; } },
+      'C45/55': { fck: 45, fctm: 3.80, get fctk05() { return 0.7 * this.fctm; } },
+      'C50/60': { fck: 50, fctm: 4.07, get fctk05() { return 0.7 * this.fctm; } }
+    }
+  };
+
+  const Data = {
+    sync() {
+      // Projekt/Adresse/Position sind rein informativ (Druckkopf); keine Berechnung hängt dran.
+    }
+  };
+
+  const UI = {
+    init() {
+      Data.sync();
+      Storage.render('anch');
+      Storage.render('susp');
+      HelperLengths.init();
+      HelperCover.init();
+      HelperRebar.init();
+      HelperMesh.init();
+      this.restoreNavSections();
+      this.toggleAlpha5Field();
+      this.updateThetaLabel();
+      this.addRow('rebar-body-anch');
+      this.addRow('rebar-body-anch');
+      
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => this.showPage(item.dataset.page));
+      });
+
+      // Prepare UI for printing
+      window.addEventListener('beforeprint', () => {
+        document.querySelectorAll('details.calc-steps').forEach(d => d.setAttribute('open', ''));
+        document.getElementById('print-project').innerText = document.getElementById('project_name').value || '-';
+        document.getElementById('print-position').innerText = document.getElementById('position_current').value || '-';
+        document.getElementById('print-date').innerText = new Date().toLocaleDateString('de-DE');
+
+        // Grafiken für den Druck: den leeren Bereich oberhalb des Titels aus dem viewBox
+        // herausschneiden (statt per CSS zu tricksen — direkt am Attribut ist eindeutig
+        // und kollidiert nicht mit anderen Größenregeln).
+        document.querySelectorAll('svg[data-crop-top]').forEach(svg => {
+          const crop = parseFloat(svg.getAttribute('data-crop-top')) || 0;
+          if (crop <= 0) return;
+          const vb = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+          if (vb.length !== 4) return;
+          svg.setAttribute('data-orig-viewbox', svg.getAttribute('viewBox'));
+          svg.setAttribute('viewBox', `${vb[0]} ${vb[1] + crop} ${vb[2]} ${vb[3] - crop}`);
+        });
+      });
+
+      window.addEventListener('afterprint', () => {
+        document.querySelectorAll('svg[data-orig-viewbox]').forEach(svg => {
+          svg.setAttribute('viewBox', svg.getAttribute('data-orig-viewbox'));
+          svg.removeAttribute('data-orig-viewbox');
+        });
+      });
+
+      const updateIndirectCheck = () => {
+        const h1 = parseFloat(document.getElementById('h_susp').value) || 60;
+        const h2 = parseFloat(document.getElementById('h_nt').value) || 40;
+        const isIndirect = (h1 - h2) < h2;
+        const span = document.getElementById('check_indirect');
+        if (span) {
+          span.innerHTML = `h₁ = ${h1} cm, h₂ = ${h2} cm → ${isIndirect ? '✓ Indirekte Auflagerung (h₁ - h₂ < h₂) → Aufhängebewehrung erforderlich' : '✗ Keine indirekte Auflagerung (h₁ - h₂ ≥ h₂)'}`;
+          span.style.color = isIndirect ? 'var(--success)' : 'var(--error)';
+        }
+      };
+
+      document.getElementById('h_susp').addEventListener('input', updateIndirectCheck);
+      document.getElementById('h_nt').addEventListener('input', updateIndirectCheck);
+      updateIndirectCheck();
+    },
+
+    toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    },
+
+    showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      
+      const targetPage = document.getElementById('page-' + pageId);
+      if (targetPage) targetPage.classList.add('active');
+      
+      const targetNav = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+      if (targetNav) targetNav.classList.add('active');
+
+      // Projekt/Position-Kopfzeile ist nur bei den Nachweisen relevant, nicht bei den
+      // Kleinen Helferlein (die sind projekt-/positionsunabhängige Nachschlagewerkzeuge).
+      const contextBar = document.getElementById('context-bar');
+      if (contextBar) {
+        const isHelper = pageId === 'helper-anchlen' || pageId === 'helper-laplen' || pageId === 'helper-laplen-mesh' || pageId === 'helper-cover' || pageId === 'helper-rebar-as' || pageId === 'helper-rebar-asline' || pageId === 'helper-rebar-asw';
+        contextBar.style.display = isHelper ? 'none' : 'flex';
+      }
+
+      if (window.innerWidth <= 900) {
+        document.getElementById('sidebar').classList.remove('open');
+      }
+    },
+
+    updateThetaLabel() {
+      const mode  = document.getElementById('theta_mode').value;
+      const label = document.getElementById('theta_label');
+      const input = document.getElementById('cot_theta');
+      if (mode === 'deg') {
+        label.textContent = 'Winkel θ [°]';
+        input.min = '21.8'; input.max = '45'; input.step = '0.5';
+        input.title = 'Druckstrebenwinkel in Grad (21,8° ≤ θ ≤ 45°)';
+      } else {
+        label.textContent = 'cot θ';
+        input.min = '1.0'; input.max = '2.5'; input.step = '0.05';
+        input.title = 'cot θ aus Statik (1,0 ≤ cot θ ≤ 2,5)';
+      }
+    },
+
+    toggleNavSection(labelEl) {
+      const section = labelEl.closest('.nav-section, .nav-subsection');
+      if (!section) return;
+      section.classList.toggle('collapsed');
+      try {
+        const collapsed = JSON.parse(localStorage.getItem('ec2tool_nav_collapsed') || '{}');
+        collapsed[section.dataset.section] = section.classList.contains('collapsed');
+        localStorage.setItem('ec2tool_nav_collapsed', JSON.stringify(collapsed));
+      } catch (e) {}
+    },
+
+    restoreNavSections() {
+      let collapsed = {};
+      try { collapsed = JSON.parse(localStorage.getItem('ec2tool_nav_collapsed') || '{}'); } catch (e) {}
+      document.querySelectorAll('.nav-section, .nav-subsection').forEach(section => {
+        if (collapsed[section.dataset.section]) section.classList.add('collapsed');
+      });
+    },
+
+    toggleDisclaimer() {
+      const modal = document.getElementById('disclaimer-modal');
+      if (!modal) return;
+      const isOpen = modal.style.display === 'flex';
+      modal.style.display = isOpen ? 'none' : 'flex';
+    },
+
+    toggleDonate() {
+      const modal = document.getElementById('donate-modal');
+      if (!modal) return;
+      const isOpen = modal.style.display === 'flex';
+      modal.style.display = isOpen ? 'none' : 'flex';
+    },
+
+    toggleAlpha5Field() {
+      const isDirekt = document.getElementById('lager_typ').value === 'direkt';
+      const input = document.getElementById('fEd_alpha5');
+      const hint  = document.getElementById('fEd_alpha5_hint');
+      if (!input || !hint) return;
+      input.disabled = !isDirekt;
+      hint.style.display = isDirekt ? 'none' : 'block';
+      if (!isDirekt) input.value = '';
+    },
+
+    addRow(targetId) {
+      const tbody = document.getElementById(targetId);
+      if (!tbody) return;
+      const tr = document.createElement('tr');
+
+      const td1 = document.createElement('td');
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.className = 'n'; inp.value = '2';
+      inp.style.width = '70px'; inp.min = '1'; inp.step = '1';
+      td1.appendChild(inp);
+
+      const td2 = document.createElement('td');
+      const selD = document.createElement('select');
+      selD.className = 'd';
+      [['12','12 mm'],['14','14 mm'],['16','16 mm'],['20','20 mm'],
+       ['25','25 mm'],['28','28 mm']].forEach(([v,t]) => {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = t;
+        if (v === '16') o.selected = true;
+        selD.appendChild(o);
+      });
+      td2.appendChild(selD);
+
+      const td3 = document.createElement('td');
+      const selE = document.createElement('select');
+      selE.className = 'e';
+      [['1.0','Gerades Stabende (α₁=1.0)'],
+       ['0.7','Haken / Winkelhaken (α₁=0.7)'],
+       ['0.7S','Schlaufe (α₁=0.7, 1 Stk = 2×As)']].forEach(([v,t]) => {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = t;
+        selE.appendChild(o);
+      });
+      td3.appendChild(selE);
+
+      const td3b = document.createElement('td');
+      const selB = document.createElement('select');
+      selB.className = 'bnd';
+      [['1.0','Gut (η₁=1,0)'],['0.7','Mäßig (η₁=0,7)']].forEach(([v,t]) => {
+        const o = document.createElement('option');
+        o.value = v; o.textContent = t;
+        selB.appendChild(o);
+      });
+      td3b.appendChild(selB);
+
+      const td4 = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.textContent = '✕';
+      btn.style.cssText = 'background:none;border:none;color:var(--error);cursor:pointer;font-size:18px;';
+      btn.onclick = function() { this.closest('tr').remove(); };
+      td4.appendChild(btn);
+
+      tr.appendChild(td1); tr.appendChild(td2);
+      tr.appendChild(td3); tr.appendChild(td3b); tr.appendChild(td4);
+      tbody.appendChild(tr);
+    }
+  };
+
+  function drawAnchorageSVG(posResults, l_vorh_mm, bSup_mm, cnom_mm) {
+    const W      = 820;
+    const topY   = 95;
+    const layerStep = 35;
+    const covPx  = Math.min(cnom_mm * 0.5, 30);
+    const n      = posResults.length;
+
+    const beamH  = Math.max(160, covPx + 20 + n * layerStep + 40);
+    const H      = topY + beamH + 30 + n * 28 + 80;
+
+    const maxDim = Math.max(l_vorh_mm + 80, ...posResults.map(p => p.lbd + 80));
+    const sc     = Math.min(540 / maxDim, 1.2);
+    const supFaceX = W - 100;
+    const beamX  = Math.max(30, supFaceX - maxDim * sc - 20);
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" data-crop-top="36"
+        style="width:100%;border-radius:8px;background:#0b1220;margin-top:16px;">
+      <defs>
+        <pattern id="hs" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="8" stroke="#253d60" stroke-width="1.5"/>
+        </pattern>
+        <marker id="mGold"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#f59e0b"/></marker>
+        <marker id="mGoldL" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto"><path d="M7,0 L7,7 L0,3.5z" fill="#f59e0b"/></marker>
+        <marker id="mOk"    markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#10b981"/></marker>
+        <marker id="mFail"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#ef4444"/></marker>
+      </defs>
+
+      <!-- Trägerkörper -->
+      <rect x="${beamX}" y="${topY}" width="${supFaceX - beamX}" height="${beamH}" fill="#0f1729" stroke="#2d4a6e" stroke-width="1.5"/>
+      <!-- Auflagerblock -->
+      <rect x="${supFaceX}" y="${topY}" width="70" height="${beamH}" fill="url(#hs)" stroke="#2d4a6e" stroke-width="1.5"/>
+      <!-- Text Betondeckung -->
+      <text x="${beamX+14}" y="${topY+18}" fill="#435872" font-size="9" font-family="JetBrains Mono,monospace">c_nom=${cnom_mm}mm</text>
+      <!-- Auflagerkante -->
+      <line x1="${supFaceX}" y1="${topY-12}" x2="${supFaceX}" y2="${topY+beamH+12}" stroke="#f59e0b" stroke-dasharray="6,4" stroke-width="1.5"/>
+      <text x="${supFaceX+6}" y="${topY-3}" fill="#f59e0b" font-size="10" font-family="DM Sans,sans-serif" font-weight="600">Auflagerkante</text>
+
+      <text class="svg-title" x="${W-12}" y="20" fill="#f59e0b" font-size="12" font-weight="bold" text-anchor="end" font-family="Oswald,sans-serif">SCHNITT ENDAUFLAGER · EC2 8.4</text>
+      <line x1="20" y1="34" x2="${W-20}" y2="34" stroke="#253d60" stroke-width="1"/>`;
+    const colors = ['#10b981','#60a5fa','#fbbf24','#f472b6','#a78bfa'];
+    const rebarYBottom = topY + beamH - covPx - 12;
+
+    posResults.forEach((p, idx) => {
+      const yPos  = rebarYBottom - idx * layerStep;
+      const lbdPx = p.lbd * sc;
+      const xEnd  = supFaceX - 6;
+      const xSt   = xEnd - lbdPx;
+      const col   = p.ok ? colors[idx % colors.length] : '#ef4444';
+
+      const stabLabel = p.isSchlaufe ? `Pos.${idx+1}: ${p.n}Schl.O${p.d}` : `Pos.${idx+1}: ${p.n}xO${p.d}`;
+
+      svg += `<line x1="${xSt}" y1="${yPos}" x2="${xEnd}" y2="${yPos}" stroke="${col}" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="${xEnd}" cy="${yPos}" r="4" fill="${col}"/>`;
+
+      if (p.a1 < 1.0) {
+        if (p.isSchlaufe) {
+          svg += `<path d="M${xSt} ${yPos} q-14 0 -14 -14 q0 -10 14 -10" stroke="${col}" fill="none" stroke-width="2.5"/>`;
+        } else {
+          svg += `<path d="M${xSt} ${yPos} q-12 0 -12 -14" stroke="${col}" fill="none" stroke-width="2.5"/>`;
+        }
+      }
+      svg += `<text x="${xSt - (p.a1<1?32:8)}" y="${yPos+4}" fill="${col}" font-size="9" text-anchor="end" font-family="JetBrains Mono,monospace">${stabLabel}</text>`;
+
+      const dimY = topY + beamH + 20 + idx * 28;
+      const mEnd = p.ok ? 'url(#mOk)' : 'url(#mFail)';
+      svg += `<line x1="${xSt}" y1="${dimY}" x2="${supFaceX}" y2="${dimY}" stroke="${col}" stroke-width="1.5" marker-end="${mEnd}"/>
+              <line x1="${xSt}" y1="${dimY-5}" x2="${xSt}" y2="${dimY+5}" stroke="${col}" stroke-width="1.5"/>
+              <text x="${xSt + lbdPx/2}" y="${dimY-6}" fill="${col}" font-size="10" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">
+                lbd,${idx+1}=${p.lbd.toFixed(0)}mm ${p.ok?'[OK]':'[NG]'}
+              </text>`;
+    });
+
+    const lVorhPx = l_vorh_mm * sc;
+    const dvY = topY - 30;
+    svg += `<line x1="${supFaceX - lVorhPx}" y1="${dvY}" x2="${supFaceX}" y2="${dvY}" stroke="#f59e0b" stroke-width="2" marker-start="url(#mGoldL)" marker-end="url(#mGold)"/>
+            <text x="${supFaceX - lVorhPx/2}" y="${dvY-7}" fill="#f59e0b" font-size="11" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">l_vorh=${l_vorh_mm.toFixed(0)}mm</text>`;
+
+    const legY = H - 48;
+    svg += `<rect x="12" y="${legY}" width="12" height="12" fill="#10b981" rx="2"/>
+            <text x="30" y="${legY+10}" fill="#8fa3c0" font-size="9" font-family="DM Sans,sans-serif">l_bd ausreichend</text>
+            <rect x="180" y="${legY}" width="12" height="12" fill="#ef4444" rx="2"/>
+            <text x="198" y="${legY+10}" fill="#8fa3c0" font-size="9" font-family="DM Sans,sans-serif">l_bd nicht ausreichend</text>`;
+
+    svg += `</svg>`;
+    return `<div class="svg-print-crop">${svg}</div>`;
+  }
+
+  function drawSuspensionSVG(p) {
+    const W = 880, H = 580;
+    const CX = W / 2, CY = H / 2 + 10;
+
+    const xAusg = p.h2 / 3;
+    const totalW = p.b2 + 2 * xAusg + 30;
+    const totalH = p.b1 + 50;
+    const sc = Math.min((W - 180) / totalW, (H - 180) / totalH);
+
+    const b1px  = p.b1 * sc;
+    const b2px  = p.b2 * sc;
+    const xAusgPx = xAusg * sc;
+
+    const htTop  = CY - b1px / 2;
+    const htBot  = CY + b1px / 2;
+    const htLeft = CX - b2px / 2 - xAusgPx - 50;
+    const htRight= CX + b2px / 2 + xAusgPx + 50;
+
+    const ntLeft = CX - b2px / 2;
+    const ntRight= CX + b2px / 2;
+    const ntTop  = htTop - 80;
+    const ntBot  = htBot + 80;
+
+    const extL = { x: CX - b2px/2 - xAusgPx, y: htTop, w: xAusgPx, h: b1px };
+    const extR = { x: CX + b2px/2,            y: htTop, w: xAusgPx, h: b1px };
+
+    const hasExt = p.nAusg > 0;
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" data-crop-top="${Math.max(0, ntTop - 45).toFixed(0)}" style="width:100%;border-radius:8px;background:#0b1220;margin-top:16px;">
+      <defs>
+        <pattern id="hkz" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="7" stroke="#f59e0b" stroke-width="1.2"/>
+        </pattern>
+        <marker id="aBlue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#60a5fa"/></marker>
+        <marker id="aCyan" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#06b6d4"/></marker>
+      </defs>
+
+      <text class="svg-title" x="${W-16}" y="24" fill="#f59e0b" font-size="12" font-weight="bold" text-anchor="end" font-family="Oswald,sans-serif">GRUNDRISS & KRAFTFLUSS (STABWERKSMODELL) · EC2 9.2.5</text>
+      
+      <!-- Hauptträger -->
+      <rect x="${htLeft}" y="${htTop}" width="${htRight-htLeft}" height="${b1px}" fill="#0f1729" stroke="#2d4a6e" stroke-width="1.5"/>
+      <text x="${htLeft+12}" y="${htTop+16}" fill="#536b8c" font-size="10" font-family="JetBrains Mono,monospace">Hauptträger B₁=${p.b1}cm / H₁=${p.h1}cm</text>
+
+      <!-- Nebenträger -->
+      <rect x="${ntLeft}" y="${ntTop}" width="${b2px}" height="${ntBot-ntTop}" fill="#111d30" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="6,4"/>
+      <text x="${CX}" y="${ntTop+18}" fill="#60a5fa" font-size="10" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">Nebenträger B₂=${p.b2}cm</text>
+
+      <!-- Auslagerungszonen -->
+      <rect x="${extL.x}" y="${extL.y}" width="${extL.w}" height="${extL.h}" fill="${hasExt?'rgba(245,158,11,0.08)':'rgba(16,185,129,0.05)'}" stroke="${hasExt?'#f59e0b':'#10b981'}" stroke-width="1.2" stroke-dasharray="4,4"/>
+      <rect x="${extR.x}" y="${extR.y}" width="${extR.w}" height="${extR.h}" fill="${hasExt?'rgba(245,158,11,0.08)':'rgba(16,185,129,0.05)'}" stroke="${hasExt?'#f59e0b':'#10b981'}" stroke-width="1.2" stroke-dasharray="4,4"/>
+
+      <!-- Kreuzungsbereich -->
+      <rect x="${ntLeft}" y="${htTop}" width="${b2px}" height="${b1px}" fill="url(#hkz)" fill-opacity="0.3" stroke="#f59e0b" stroke-width="2"/>
+
+      <!-- Bügel im Kreuzungsbereich (n_KZ) -->
+      ${Array.from({length: p.nKZ}).map((_, i) => {
+        const step = b2px / (p.nKZ + 1);
+        const x = ntLeft + step * (i + 1);
+        return `<line x1="${x}" y1="${htTop+4}" x2="${x}" y2="${htBot-4}" stroke="#f59e0b" stroke-width="2.5"/>
+                <circle cx="${x}" cy="${CY}" r="3" fill="#f59e0b"/>`;
+      }).join('')}
+
+      <!-- Ausgelagerte Bügel (Links & Rechts) -->
+      ${Array.from({length: p.nAusgProSeite}).map((_, i) => {
+        const step = xAusgPx / (p.nAusgProSeite + 1);
+        const xL = ntLeft - step * (i + 1);
+        const xR = ntRight + step * (i + 1);
+        return `
+          <!-- Links -->
+          <line x1="${xL}" y1="${htTop+4}" x2="${xL}" y2="${htBot-4}" stroke="#10b981" stroke-width="2.5" stroke-dasharray="3,2"/>
+          <circle cx="${xL}" cy="${CY}" r="3.5" fill="#10b981"/>
+          <!-- Rechts -->
+          <line x1="${xR}" y1="${htTop+4}" x2="${xR}" y2="${htBot-4}" stroke="#10b981" stroke-width="2.5" stroke-dasharray="3,2"/>
+          <circle cx="${xR}" cy="${CY}" r="3.5" fill="#10b981"/>
+        `;
+      }).join('')}`;
+
+    // STABWERKSMODELL / FACHWERK (SCHRÄGE DRUCKSTREBEN & HORIZONTALBEWEHRUNG)
+    if (hasExt) {
+      const xL_avg = ntLeft - xAusgPx / 2;
+      const xR_avg = ntRight + xAusgPx / 2;
+      const margin = Math.min(14, b1px * 0.2); // Dynamischer Randabstand für die äußere Lage
+      
+      svg += `
+        <!-- Schräge Druckstreben vom Nebenträger zu den ausgelagerten Bügeln -->
+        <line x1="${CX}" y1="${htTop - 10}" x2="${xL_avg}" y2="${CY}" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="5,3"/>
+        <line x1="${CX}" y1="${htTop - 10}" x2="${xR_avg}" y2="${CY}" stroke="#f59e0b" stroke-width="1.8" stroke-dasharray="5,3"/>
+        
+        <!-- Horizontale Zugbänder / Zusätzliche Horizontalbewehrung (Außen, gerade Eisen) -->
+        <line x1="${xL_avg-25}" y1="${htTop + margin}" x2="${xR_avg+25}" y2="${htTop + margin}" stroke="#06b6d4" stroke-width="3"/>
+        <line x1="${xL_avg-25}" y1="${htBot - margin}" x2="${xR_avg+25}" y2="${htBot - margin}" stroke="#06b6d4" stroke-width="3"/>
+        
+        <!-- Text für Horizontalkraft -->
+        <text x="${CX}" y="${CY + 5}" fill="#06b6d4" font-size="10" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">
+          Stegbewehrung Hauptträger
+        </text>
+        <text x="${CX}" y="${CY + 18}" fill="#06b6d4" font-size="10" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">
+          A_s,h,horiz (${p.asHorizVorh.toFixed(2)} cm²)
+        </text>
+      `;
+    }
+
+    // Bemaßung & Kraftpfeil
+    svg += `
+      <line x1="${CX}" y1="${ntTop - 35}" x2="${CX}" y2="${ntTop - 5}" stroke="#60a5fa" stroke-width="3" marker-end="url(#aBlue)"/>
+      <text x="${CX+12}" y="${ntTop - 18}" fill="#60a5fa" font-size="11" font-weight="bold" font-family="JetBrains Mono,monospace">F_Ed = ${p.fEd} kN</text>
+
+      <!-- Maßketten -->
+      <!-- b2 -->
+      <line x1="${ntLeft}" y1="${htBot+18}" x2="${ntRight}" y2="${htBot+18}" stroke="#f59e0b" stroke-width="1.2"/>
+      <text x="${CX}" y="${htBot+32}" fill="#f59e0b" font-size="10" text-anchor="middle" font-family="JetBrains Mono,monospace">b₂=${p.b2}cm</text>
+      
+      <!-- h2/3 Links -->
+      <line x1="${extL.x}" y1="${htBot+18}" x2="${ntLeft}" y2="${htBot+18}" stroke="#8fa3c0" stroke-width="1.2"/>
+      <text x="${extL.x + xAusgPx/2}" y="${htBot+32}" fill="#8fa3c0" font-size="9" text-anchor="middle" font-family="JetBrains Mono,monospace">h₂/3=${xAusg.toFixed(1)}cm</text>
+
+      <!-- Legend -->
+      <g transform="translate(20, ${H - 45})">
+        <rect x="0" y="0" width="12" height="12" fill="#f59e0b" rx="2"/>
+        <text x="18" y="10" fill="#8fa3c0" font-size="10" font-family="DM Sans,sans-serif">Bügel im Kreuzungsbereich (n_KZ)</text>
+        
+        <rect x="220" y="0" width="12" height="12" fill="#10b981" rx="2"/>
+        <text x="238" y="10" fill="#8fa3c0" font-size="10" font-family="DM Sans,sans-serif">Ausgelagerte Bügel in Auslagerungszone</text>
+
+        <rect x="480" y="0" width="12" height="12" fill="#06b6d4" rx="2"/>
+        <text x="498" y="10" fill="#8fa3c0" font-size="10" font-family="DM Sans,sans-serif">Stegbewehrung Hauptträger (horizontal)</text>
+      </g>
+    </svg>`;
+
+    return `<div class="svg-print-crop">${svg}</div>`;
+  }
+
+  const Storage = {
+    KEYS: { anch: 'ec2tool_positions_anch', susp: 'ec2tool_positions_susp' },
+    fieldIds: {
+      anch: ['grade_anch','b_anch','cnom_anch',
+             'vEd_anch','lager_typ','theta_mode','cot_theta','asErf_anch','supWidth','fEd_alpha5','alpha3_d','alpha3_n','alpha3_legs'],
+      susp: ['grade_susp','h_susp','b_susp',
+             'fEd_susp','h_nt','b_nt','d_susp','legs','n_susp','as_sw_erf','n_horiz','d_horiz']
+    },
+
+    getAll(scope) {
+      try { return JSON.parse(localStorage.getItem(this.KEYS[scope])) || []; }
+      catch (e) { return []; }
+    },
+    saveAll(scope, list) {
+      try { localStorage.setItem(this.KEYS[scope], JSON.stringify(list)); }
+      catch (e) { alert('Speichern nicht möglich (Browser-Speicher voll oder deaktiviert).'); }
+    },
+
+    captureCurrent(scope) {
+      const values = {};
+      this.fieldIds[scope].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) values[id] = el.value;
+      });
+      if (scope === 'anch') {
+        values.rebar = Array.from(document.querySelectorAll('#rebar-body-anch tr')).map(tr => ({
+          n: tr.querySelector('.n')?.value,
+          d: tr.querySelector('.d')?.value,
+          e: tr.querySelector('.e')?.value,
+          b: tr.querySelector('.bnd')?.value
+        }));
+      }
+      return values;
+    },
+
+    save(scope) {
+      const name = (document.getElementById('position_current').value || '').trim();
+      if (!name) { alert('Bitte zuerst oben in der Kopfzeile die "Position" ausfüllen.'); return; }
+      const project = (document.getElementById('project_name').value || '').trim();
+      const list = this.getAll(scope);
+      list.unshift({ id: Date.now(), name, project, date: new Date().toLocaleDateString('de-DE'), data: this.captureCurrent(scope) });
+      this.saveAll(scope, list);
+      this.render(scope);
+    },
+
+    applyValues(scope, values) {
+      this.fieldIds[scope].forEach(fid => {
+        const el = document.getElementById(fid);
+        if (el && values[fid] !== undefined) el.value = values[fid];
+      });
+      if (scope === 'anch') {
+        const tbody = document.getElementById('rebar-body-anch');
+        tbody.innerHTML = '';
+        (values.rebar || []).forEach(r => {
+          UI.addRow('rebar-body-anch');
+          const tr = tbody.lastElementChild;
+          if (tr) {
+            if (r.n !== undefined) tr.querySelector('.n').value = r.n;
+            if (r.d !== undefined) tr.querySelector('.d').value = r.d;
+            if (r.e !== undefined) tr.querySelector('.e').value = r.e;
+            if (r.b !== undefined) tr.querySelector('.bnd').value = r.b;
+          }
+        });
+      }
+      Data.sync();
+    },
+
+    load(scope, id) {
+      const entry = this.getAll(scope).find(e => e.id === id);
+      if (!entry) return;
+      this.applyValues(scope, entry.data);
+      // Kopfzeile auf die geladene Position umstellen — damit sofort sichtbar, in beiden
+      // Listen nach passenden Einträgen zur selben Position zu suchen (z.B. via Highlight).
+      document.getElementById('position_current').value = entry.name;
+      if (entry.project) document.getElementById('project_name').value = entry.project;
+      this.render('anch');
+      this.render('susp');
+      alert('Position "' + entry.name + '" wurde geladen. Bitte den Nachweis erneut ausführen.');
+    },
+
+    slugify(s) {
+      return (s || 'position').toLowerCase()
+        .replace(/[äöüß]/g, m => ({ä:'ae',ö:'oe',ü:'ue',ß:'ss'}[m]))
+        .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'position';
+    },
+
+    downloadJSON(payload, filename) {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+
+    exportCurrent(scope) {
+      const name = (document.getElementById('position_current').value || 'Position').trim() || 'Position';
+      const project = (document.getElementById('project_name').value || '').trim();
+      const payload = { name, project, date: new Date().toLocaleDateString('de-DE'), data: this.captureCurrent(scope) };
+      this.downloadJSON(payload, this.slugify(name) + '.json');
+    },
+
+    exportEntry(scope, id) {
+      const entry = this.getAll(scope).find(e => e.id === id);
+      if (!entry) return;
+      this.downloadJSON(entry, this.slugify(entry.name) + '.json');
+    },
+
+    importFile(input, scope) {
+      const file = input.files && input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const payload = JSON.parse(e.target.result);
+          const values = payload.data || payload;
+          const name = payload.name || file.name.replace(/\.json$/i, '');
+          const project = payload.project || '';
+          this.applyValues(scope, values);
+          document.getElementById('position_current').value = name;
+          if (project) document.getElementById('project_name').value = project;
+          const list = this.getAll(scope);
+          list.unshift({ id: Date.now(), name, project, date: new Date().toLocaleDateString('de-DE'), data: values });
+          this.saveAll(scope, list);
+          this.render(scope);
+          alert('Position "' + name + '" aus Datei geladen (und zusätzlich in der Liste gespeichert). Bitte den Nachweis erneut ausführen.');
+        } catch (err) {
+          alert('Datei konnte nicht gelesen werden — ungültiges Format.');
+        }
+      };
+      reader.readAsText(file);
+      input.value = '';
+    },
+
+    delete(scope, id) {
+      if (!confirm('Diese Position wirklich löschen?')) return;
+      this.saveAll(scope, this.getAll(scope).filter(e => e.id !== id));
+      this.render(scope);
+    },
+
+    render(scope) {
+      const body = document.getElementById('saved-positions-body-' + scope);
+      if (!body) return;
+      const list = this.getAll(scope);
+      if (list.length === 0) {
+        body.innerHTML = '<tr><td colspan="4" style="color:var(--text-muted);">Noch keine gespeicherten Positionen.</td></tr>';
+        return;
+      }
+      const current = (document.getElementById('position_current')?.value || '').trim();
+      body.innerHTML = list.map(e => {
+        const isCurrent = current && e.name === current;
+        return `
+        <tr style="${isCurrent ? 'background:var(--accent-dim);' : ''}">
+          <td style="color:var(--text-muted);">${e.project || '–'}</td>
+          <td>${isCurrent ? '<b>' + e.name + '</b> ⬅' : e.name}</td>
+          <td style="color:var(--text-muted);font-size:11px;">${e.date}</td>
+          <td style="text-align:right;white-space:nowrap;">
+            <button class="btn-add" style="padding:4px 10px;font-size:11px;" onclick="Storage.load('${scope}', ${e.id})">Laden</button>
+            <button class="btn-add" style="padding:4px 10px;font-size:11px;" onclick="Storage.exportEntry('${scope}', ${e.id})">⭳ Datei</button>
+            <button class="btn-add" style="padding:4px 10px;font-size:11px;color:var(--error);border-color:var(--error);" onclick="Storage.delete('${scope}', ${e.id})">Löschen</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+  };
+
+  const HelperLengths = {
+    grades: ['C20/25','C25/30','C30/37','C35/45','C40/50','C45/55','C50/60'],
+    diameters: [8,10,12,14,16,20,25,28,32,40],
+    state: { grade: 'C25/30', bond: 1.0, ausnutzung: 100, druckzone: false, diameter: 16 },
+
+    fyd: 500 / 1.15, // N/mm²
+
+    fbd(grade, bond, d) {
+      const c = Materials.concrete[grade];
+      const fctk05 = 0.7 * c.fctm;
+      const fctd = fctk05 / 1.5;
+      const eta2 = d > 32 ? (132 - d) / 100 : 1.0; // EC2 8.4.2(2)
+      return 2.25 * bond * eta2 * fctd;
+    },
+
+    lbRqd(grade, bond, d) {
+      // σ_sd = f_yd · (A_s,erf/A_s,vorh) — EC2 8.4.3; bei 100% Ausnutzung = volle Streckgrenze
+      const sigmaSd = this.fyd * (this.state.ausnutzung / 100);
+      return (d / 4) * (sigmaSd / this.fbd(grade, bond, d)); // mm
+    },
+
+    setAusnutzung(val) {
+      let v = parseFloat(val);
+      if (isNaN(v)) v = 100;
+      v = Math.max(10, Math.min(100, v));
+      this.state.ausnutzung = v;
+      ['hl-ausnutzung-anch', 'hl-ausnutzung-lap'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = v;
+      });
+      this.render();
+    },
+
+    setDruckzone(checked) {
+      this.state.druckzone = checked;
+      ['hl-druckzone-anch', 'hl-druckzone-lap'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = checked;
+      });
+      this.render();
+    },
+
+    init() {
+      this.buildButtons('hl-grade-buttons-anch', 'hl-bond-buttons-anch');
+      this.buildButtons('hl-grade-buttons-lap', 'hl-bond-buttons-lap');
+      this.buildDiameterButtons('hl-diameter-buttons-anch');
+      this.buildDiameterButtons('hl-diameter-buttons-lap');
+      this.render();
+    },
+
+    buildDiameterButtons(wrapId) {
+      const wrap = document.getElementById(wrapId);
+      if (!wrap) return;
+      wrap.innerHTML = this.diameters.map(d =>
+        `<button class="chip${d === this.state.diameter ? ' active' : ''}" data-diameter="${d}">Ø${d}</button>`
+      ).join('');
+      wrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        this.state.diameter = parseInt(btn.dataset.diameter);
+        this.syncButtons();
+        this.render();
+      }));
+    },
+
+    buildButtons(gradeId, bondId) {
+      const gWrap = document.getElementById(gradeId);
+      const bWrap = document.getElementById(bondId);
+      if (!gWrap || !bWrap) return;
+
+      gWrap.innerHTML = this.grades.map(g =>
+        `<button class="chip${g === this.state.grade ? ' active' : ''}" data-grade="${g}">${g}</button>`
+      ).join('');
+      bWrap.innerHTML = `
+        <button class="chip${this.state.bond === 1.0 ? ' active' : ''}" data-bond="1.0">Gute Verbundbedingungen (η₁=1,0)</button>
+        <button class="chip${this.state.bond === 0.7 ? ' active' : ''}" data-bond="0.7">Mäßige Verbundbedingungen (η₁=0,7)</button>`;
+
+      gWrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        this.state.grade = btn.dataset.grade;
+        this.syncButtons();
+        this.render();
+      }));
+      bWrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        this.state.bond = parseFloat(btn.dataset.bond);
+        this.syncButtons();
+        this.render();
+      }));
+    },
+
+    // Beide Seiten (Verankerungslänge/Übergreifungslänge) teilen sich dieselbe Betongüte/
+    // Verbundbedingung — nach jedem Klick werden beide Button-Sätze synchron gehalten.
+    syncButtons() {
+      ['hl-grade-buttons-anch', 'hl-grade-buttons-lap'].forEach(id => {
+        const wrap = document.getElementById(id);
+        if (wrap) wrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b.dataset.grade === this.state.grade));
+      });
+      ['hl-bond-buttons-anch', 'hl-bond-buttons-lap'].forEach(id => {
+        const wrap = document.getElementById(id);
+        if (wrap) wrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', parseFloat(b.dataset.bond) === this.state.bond));
+      });
+      ['hl-diameter-buttons-anch', 'hl-diameter-buttons-lap'].forEach(id => {
+        const wrap = document.getElementById(id);
+        if (wrap) wrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', parseInt(b.dataset.diameter) === this.state.diameter));
+      });
+    },
+
+    render() {
+      const { grade, bond, druckzone, diameter: d } = this.state;
+
+      const anchTable = document.getElementById('hl-anchorage-table');
+      if (anchTable) {
+        const lbRqd = this.lbRqd(grade, bond, d);
+        const lbMinFactor = druckzone ? 0.6 : 0.3;
+        const lbMin = Math.max(lbMinFactor * lbRqd, 10 * d, 100);
+        const lbdStraight = Math.max(1.0 * lbRqd, lbMin) / 10;
+        const row = druckzone
+          ? `<tr><td><b>Ø${d}</b></td><td>${lbdStraight.toFixed(0)}</td></tr>`
+          : `<tr><td><b>Ø${d}</b></td><td>${lbdStraight.toFixed(0)}</td><td>${(Math.max(0.7 * lbRqd, lbMin) / 10).toFixed(0)}</td></tr>`;
+        anchTable.innerHTML = druckzone
+          ? `<thead><tr>
+               <th>Ø [mm]</th>
+               <th>α₁=1,0<br><small style="font-weight:400;color:var(--text-muted);">gerades Stabende (Druckzone)</small></th>
+             </tr></thead>
+             <tbody>${row}</tbody>`
+          : `<thead><tr>
+               <th>Ø [mm]</th>
+               <th>α₁=1,0<br><small style="font-weight:400;color:var(--text-muted);">gerades Stabende</small></th>
+               <th>α₁=0,7<br><small style="font-weight:400;color:var(--text-muted);">Haken/Winkelhaken/Schlaufe</small></th>
+             </tr></thead>
+             <tbody>${row}</tbody>`;
+      }
+
+      const lapTable = document.getElementById('hl-lap-table');
+      if (lapTable) {
+        const lbRqd = this.lbRqd(grade, bond, d);
+        const l0MinFactor = druckzone ? 0.6 : 0.3;
+        const l0 = a6 => {
+          const l0min = Math.max(l0MinFactor * a6 * lbRqd, 15 * d, 200);
+          return Math.max(a6 * lbRqd, l0min) / 10;
+        };
+        const row = druckzone
+          ? `<tr><td><b>Ø${d}</b></td><td>${l0(1.0).toFixed(0)}</td></tr>`
+          : `<tr><td><b>Ø${d}</b></td><td>${l0(1.0).toFixed(0)}</td><td>${l0(1.4).toFixed(0)}</td><td>${l0(1.5).toFixed(0)}</td></tr>`;
+        lapTable.innerHTML = druckzone
+          ? `<thead><tr>
+               <th>Ø [mm]</th>
+               <th>α₆=1,0<br><small style="font-weight:400;color:var(--text-muted);">alle Druckstäbe im selben Schnitt stoßbar</small></th>
+             </tr></thead>
+             <tbody>${row}</tbody>`
+          : `<thead><tr>
+               <th>Ø [mm]</th>
+               <th>α₆=1,0<br><small style="font-weight:400;color:var(--text-muted);">&lt;25% gestoßen</small></th>
+               <th>α₆=1,4<br><small style="font-weight:400;color:var(--text-muted);">25–&lt;50% gestoßen</small></th>
+               <th>α₆=1,5<br><small style="font-weight:400;color:var(--text-muted);">≥50% gestoßen</small></th>
+             </tr></thead>
+             <tbody>${row}</tbody>`;
+      }
+
+      // Druckzonen-Hinweise ein-/ausblenden
+      const hintAnch = document.getElementById('hl-druckzone-hint-anch');
+      const hintLap  = document.getElementById('hl-druckzone-hint-lap');
+      if (hintAnch) hintAnch.style.display = druckzone ? 'block' : 'none';
+      if (hintLap)  hintLap.style.display  = druckzone ? 'block' : 'none';
+    }
+  };
+
+  const HelperCover = {
+    // Alle Einzelklassen nach EC2 Tabelle 4.1 (Beispiele wörtlich aus der Norm-Beispieltabelle,
+    // dt. NA). cminDur = Mindestbetondeckung Dauerhaftigkeit [mm], Standardfall S3 (50 Jahre,
+    // allgemeiner Hochbau). null = für die Betondeckung nicht unmittelbar maßgebend (X0, XF, XA, XM
+    // wirken sich stattdessen auf die Betonzusammensetzung/-güte aus).
+    // Innerhalb einer Kategorie (catKey) schließen sich die Klassen gegenseitig aus (Optionsfeld);
+    // zwischen den Kategorien ist freie Kombination möglich (ein Bauteil kann z.B. XC4 + XF2 + XA1 sein).
+    categories: [
+      { catKey: 'XC', catLabel: 'XC — Karbonatisierung', classes: [
+        { cls: 'XC1', cminDur: 10, minGrade: 'C20/25', desc: 'Innenräume mit üblicher Luftfeuchte (Wohn-/Bürogebäude, Küche, Bad, Waschküche) · Beton ständig unter Wasser' },
+        { cls: 'XC2', cminDur: 20, minGrade: 'C25/30', desc: 'Gründungsbauteile · Teile von Wasserbehältern' },
+        { cls: 'XC3', cminDur: 20, minGrade: 'C25/30', desc: 'Offene Hallen, überdachte Außenbauteile · Feuchträume (gewerbl. Küchen, Bäder, Hallenbäder, Viehställe)' },
+        { cls: 'XC4', cminDur: 25, minGrade: 'C30/37', desc: 'Außenbauteile mit direkter Beregnung (unbedachte Fassaden, Balkone, Terrassen)' }
+      ]},
+      { catKey: 'XD', catLabel: 'XD — Chloride (Tausalz etc.)', classes: [
+        { cls: 'XD1', cminDur: 30, minGrade: 'C30/37', desc: 'Sprühnebelbereich von Verkehrsflächen · Einzelgaragen' },
+        { cls: 'XD2', cminDur: 35, minGrade: 'C30/37', desc: 'Solebäder · Bauteile mit chloridhaltigem Industrieabwasser' },
+        { cls: 'XD3', cminDur: 40, minGrade: 'C35/45', desc: 'Brückenteile mit häufiger Spritzwasserbeanspruchung · Fahrbahndecken · Parkdecks (Tausalz)' }
+      ]},
+      { catKey: 'XS', catLabel: 'XS — Chloride aus Meerwasser', classes: [
+        { cls: 'XS1', cminDur: 30, minGrade: 'C30/37', desc: 'Außenbauteile in Küstennähe (salzhaltige Luft, kein direkter Wasserkontakt)' },
+        { cls: 'XS2', cminDur: 35, minGrade: 'C30/37', desc: 'Bauteile in Hafenanlagen, ständig unter Wasser' },
+        { cls: 'XS3', cminDur: 40, minGrade: 'C35/45', desc: 'Kaimauern, Tidebereiche, Spritzwasser-/Sprühnebelbereiche' }
+      ]},
+      { catKey: 'XF', catLabel: 'XF — Frostangriff', classes: [
+        { cls: 'XF1', cminDur: null, minGrade: 'C25/30', desc: 'Außenbauteile (mäßige Wassersättigung, ohne Taumittel)' },
+        { cls: 'XF2', cminDur: null, minGrade: 'C25/30', desc: 'Sprühnebel-/Spritzwasserbereich taumittelbehandelter Verkehrsflächen (mit Taumittel)' },
+        { cls: 'XF3', cminDur: null, minGrade: 'C25/30', desc: 'Offene Wasserbehälter · Wasserwechselzone Süßwasser (hohe Wassersättigung, ohne Taumittel)' },
+        { cls: 'XF4', cminDur: null, minGrade: 'C30/37', desc: 'Taumittelbehandelte Verkehrsflächen · Räumerlaufbahnen von Kläranlagen (hohe Wassersättigung, mit Taumittel)' }
+      ]},
+      { catKey: 'XA', catLabel: 'XA — Chemischer Angriff', classes: [
+        { cls: 'XA1', cminDur: null, minGrade: 'C25/30', desc: 'Behälter von Kläranlagen · Güllebehälter (schwacher Angriff)' },
+        { cls: 'XA2', cminDur: null, minGrade: 'C30/37', desc: 'Meerwasserkontakt · betonangreifende Böden (mäßiger Angriff)' },
+        { cls: 'XA3', cminDur: null, minGrade: 'C35/45', desc: 'Industrieabwasseranlagen · Futtertische Landwirtschaft · Kühltürme (starker Angriff)' }
+      ]},
+      { catKey: 'XM', catLabel: 'XM — Verschleiß', classes: [
+        { cls: 'XM1', cminDur: null, minGrade: 'C30/37', desc: 'Industrieböden, Beanspruchung durch luftbereifte Fahrzeuge (mäßig)' },
+        { cls: 'XM2', cminDur: null, minGrade: 'C30/37', desc: 'Industrieböden, luft-/vollgummibereifte Gabelstapler (stark)' },
+        { cls: 'XM3', cminDur: null, minGrade: 'C35/45', desc: 'Elastomer-/stahlrollenbereifte Gabelstapler · Kettenfahrzeuge · Tosbecken (sehr stark)' }
+      ]}
+    ],
+    x0: { cls: 'X0', desc: 'Fundamente ohne Bewehrung · Innenbauteile ohne Bewehrung', note: 'nur unbewehrter Beton' },
+
+    // state: pro Kategorie die gewählte Klasse (oder null = "keine"), X0 als eigener Schalter
+    state: { XC: 'XC1', XD: null, XS: null, XF: null, XA: null, XM: null, X0: false },
+    deltaCdev: 10, // mm, Standard-Vorhaltemaß
+
+    init() {
+      const groupsEl = document.getElementById('hc-scenario-groups');
+      const dSel = document.getElementById('hc-diameter');
+      if (!groupsEl || !dSel) return;
+
+      let html = `
+        <div style="margin-bottom:14px;">
+          <div style="font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">Kein Risiko</div>
+          <label style="display:flex; align-items:flex-start; gap:8px; padding:6px 4px; cursor:pointer; border-bottom:1px dotted var(--border);">
+            <input type="checkbox" data-x0="1" style="margin-top:3px;" ${this.state.X0 ? 'checked' : ''}>
+            <span><b>${this.x0.cls}</b> — ${this.x0.desc} <small style="color:var(--text-muted);">(${this.x0.note})</small></span>
+          </label>
+        </div>`;
+
+      this.categories.forEach(group => {
+        html += `<div style="margin-bottom:14px;">
+          <div style="font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px;">${group.catLabel}</div>
+          <label style="display:flex; align-items:center; gap:8px; padding:5px 4px; cursor:pointer; color:var(--text-muted);">
+            <input type="radio" name="hc-radio-${group.catKey}" data-cat="${group.catKey}" data-cls="" ${!this.state[group.catKey] ? 'checked' : ''}>
+            <span>– keine –</span>
+          </label>
+          ${group.classes.map(c => `
+          <label style="display:flex; align-items:flex-start; gap:8px; padding:6px 4px; cursor:pointer; border-bottom:1px dotted var(--border);">
+            <input type="radio" name="hc-radio-${group.catKey}" data-cat="${group.catKey}" data-cls="${c.cls}" style="margin-top:3px;" ${this.state[group.catKey] === c.cls ? 'checked' : ''}>
+            <span><b>${c.cls}</b> — ${c.desc}</span>
+          </label>`).join('')}
+        </div>`;
+      });
+      groupsEl.innerHTML = html;
+
+      groupsEl.querySelectorAll('input[type="radio"][data-cat]').forEach(radio => radio.addEventListener('change', () => {
+        this.state[radio.dataset.cat] = radio.dataset.cls || null;
+        this.render();
+      }));
+      groupsEl.querySelectorAll('input[data-x0]').forEach(cb => cb.addEventListener('change', () => {
+        this.state.X0 = cb.checked;
+        this.render();
+      }));
+      dSel.addEventListener('change', () => this.render());
+
+      this.render();
+    },
+
+    render() {
+      const result = document.getElementById('hc-result');
+      if (!result) return;
+
+      const d = parseFloat(document.getElementById('hc-diameter').value) || 12;
+
+      // Gewählte Klassen aus dem State zusammensammeln
+      const selected = [];
+      if (this.state.X0) selected.push({ cls: 'X0', cminDur: null });
+      this.categories.forEach(group => {
+        if (this.state[group.catKey]) {
+          const c = group.classes.find(c => c.cls === this.state[group.catKey]);
+          if (c) selected.push(c);
+        }
+      });
+
+      const coverRelevant = selected.filter(c => c.cminDur !== null);
+      const otherRelevant = selected.filter(c => c.cminDur === null && c.cls !== 'X0');
+
+      let governing = null;
+      coverRelevant.forEach(c => { if (!governing || c.cminDur > governing.cminDur) governing = c; });
+
+      const cminB   = d;
+      const cminDur = governing ? governing.cminDur : 0;
+      const cmin    = Math.max(cminB, cminDur, 10);
+      const cnom    = cmin + this.deltaCdev;
+
+      const selectedLabel = selected.length
+        ? selected.map(c => c.cls).join(', ')
+        : '<span style="color:var(--text-muted);">— keine Klasse gewählt —</span>';
+
+      const otherNote = otherRelevant.length
+        ? `<div class="norm-hint" style="margin-top:10px;">⚠️ Zusätzlich gewählt: <b>${otherRelevant.map(c=>c.cls).join(', ')}</b> — wirkt sich auf Betongüte/-zusammensetzung aus (Mindestfestigkeitsklasse, w/z-Wert, Luftgehalt), nicht auf c<sub>nom</sub> in diesem Rechner.</div>`
+        : '';
+
+      // Mindestbetongüte-Check: die schärfste Anforderung unter allen gewählten Klassen
+      // gegen die je Nachweis gewählte Betongüte prüfen (Endverankerung / Hochhängebewehrung
+      // haben jetzt jeweils ihre eigene Betongüte statt eines einzigen globalen Feldes).
+      let gradeWarning = '';
+      let strictestGradeClass = null, strictestFck = -1;
+      selected.forEach(c => {
+        if (!c.minGrade) return;
+        const reqFck = (Materials.concrete[c.minGrade] || {}).fck || 0;
+        if (reqFck > strictestFck) { strictestFck = reqFck; strictestGradeClass = c; }
+      });
+      if (strictestGradeClass) {
+        const checks = [
+          { label: 'Endverankerung', el: document.getElementById('grade_anch') },
+          { label: 'Hochhängebewehrung', el: document.getElementById('grade_susp') }
+        ];
+        const insufficient = checks
+          .filter(c => c.el)
+          .map(c => ({ label: c.label, grade: c.el.value, fck: (Materials.concrete[c.el.value] || {}).fck || 0 }))
+          .filter(c => c.fck < strictestFck);
+        if (insufficient.length) {
+          gradeWarning = `<div class="norm-hint" style="margin-top:10px; border-color:var(--error);">
+            ⚠️ <b>Mindestbetongüte nicht erfüllt:</b> Für ${strictestGradeClass.cls} ist mind. <b>${strictestGradeClass.minGrade}</b> erforderlich.<br>
+            ${insufficient.map(c => `„${c.label}" ist aktuell auf <b>${c.grade}</b> eingestellt.`).join('<br>')}
+          </div>`;
+        }
+      }
+
+      const printSummary = document.getElementById('hc-print-summary');
+      if (printSummary) {
+        printSummary.innerHTML = selected.length
+          ? selected.map(c => {
+              const full = c.cls === 'X0' ? this.x0
+                : this.categories.flatMap(g => g.classes).find(x => x.cls === c.cls);
+              return `<div style="padding:3px 0;"><b>${c.cls}</b> — ${full ? full.desc : ''}</div>`;
+            }).join('')
+          : '<div style="color:var(--text-muted);">Keine Expositionsklasse gewählt.</div>';
+      }
+
+      result.innerHTML = `
+        <div style="text-align:center; margin-bottom:14px; font-size:12px;">Gewählt: ${selectedLabel}</div>
+        <table class="detail-table" style="width:100%; max-width:520px; margin:0 auto;">
+          <tbody>
+            <tr><td>Maßgebende Klasse für Betondeckung</td><td><b>${governing ? governing.cls : '– (keine)'}</b></td></tr>
+            <tr><td>c<sub>min,b</sub> (Verbund, = Ø)</td><td>${cminB.toFixed(0)} mm</td></tr>
+            <tr><td>c<sub>min,dur</sub> (Dauerhaftigkeit)</td><td>${governing ? cminDur.toFixed(0) + ' mm' : '– (nicht maßgebend)'}</td></tr>
+            <tr><td>c<sub>min</sub> = max(c<sub>min,b</sub>; c<sub>min,dur</sub>; 10mm)</td><td><b>${cmin.toFixed(0)} mm</b></td></tr>
+            <tr><td>Δc<sub>dev</sub> (Vorhaltemaß)</td><td>${this.deltaCdev.toFixed(0)} mm</td></tr>
+            <tr style="border-top:1px solid var(--border);"><td><b>c<sub>nom</sub> = c<sub>min</sub> + Δc<sub>dev</sub></b></td><td><b style="font-size:15px;color:var(--accent);">${cnom.toFixed(0)} mm</b></td></tr>
+            <tr style="border-top:1px solid var(--border);"><td>Mindestbetongüte (aus gewählten Klassen)</td><td><b>${strictestGradeClass ? strictestGradeClass.minGrade : '– (keine Anforderung)'}</b></td></tr>
+          </tbody>
+        </table>
+        ${gradeWarning}
+        ${otherNote}
+        <div style="text-align:center; margin-top:16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn-add" onclick="HelperCover.applyTo('anch', ${cnom})">→ in „Endverankerung" übernehmen</button>
+        </div>`;
+    },
+
+    applyTo(target, cnom) {
+      const el = document.getElementById('cnom_' + target);
+      if (!el) return;
+      el.value = cnom;
+      UI.showPage(target === 'anch' ? 'anchorage' : 'suspension');
+    }
+  };
+
+  // Quelle: Schneider Bautabellen für Ingenieure, Tab. 13.18 (Übergreifungslänge l0 [cm] von
+  // ungeschnittenen Lagermatten bei Zwei-Ebenen-Stoß, as,erf/as,vorh=1,0, l0,min≥{squer;200mm}).
+  // Werte händisch aus Tabellenbild übertragen — bitte bei erster Nutzung stichprobenartig gegenprüfen.
+  const HelperMesh = {
+    grades: ['C12/15','C16/20','C20/25','C25/30','C30/37','C35/45','C40/50','C45/55','C50/60','C55/67'],
+
+    families: {
+      Q: {
+        label: 'Q-Matten',
+        types: ['Q188A/B','Q257A/B','Q335A/B','Q424A/B','Q524A/B','Q636A/B'],
+        richtungLabel1: 'Tragstoß Längsrichtung',
+        richtungLabel2: 'Tragstoß Querrichtung',
+        minQuer: { 'Q188A/B': {d:6, l:15}, 'Q257A/B': {d:7, l:25}, 'Q335A/B': {d:8, l:25}, 'Q424A/B': {d:9, l:35}, 'Q524A/B': {d:10, l:35}, 'Q636A/B': {d:10, l:35} },
+        // [gut-Längs, gut-Quer, mäßig-Längs, mäßig-Quer], je 10 Werte (C12/15...C55/67)
+        l0: {
+          'Q188A/B': {
+            gutLangs: [40,33,29,25,22, 20,20,20,20,20],
+            gutQuer:  [40,33,29,25,22, 20,20,20,20,20],
+            maessigLangs: [57,47,41,35,31, 28,26,24,22,22],
+            maessigQuer:  [57,47,41,35,31, 28,26,24,22,22]
+          },
+          'Q257A/B': {
+            gutLangs: [47,39,33,29,25, 23,21,20,20,20],
+            gutQuer:  [47,39,33,29,25, 23,21,20,20,20],
+            maessigLangs: [66,55,47,41,36, 33,30,28,26,25],
+            maessigQuer:  [66,55,47,41,36, 33,30,28,26,25]
+          },
+          'Q335A/B': {
+            gutLangs: [53,44,38,33,29, 26,24,22,21,20],
+            gutQuer:  [53,44,38,33,29, 26,24,22,21,20],
+            maessigLangs: [76,63,54,47,41, 37,34,32,30,29],
+            maessigQuer:  [76,63,54,47,41, 37,34,32,30,29]
+          },
+          'Q424A/B': {
+            gutLangs: [60,50,43,37,33, 30,27,25,23,23],
+            gutQuer:  [60,50,'43a','37a','33a', '30a','27a','25a','23a','23a'],
+            maessigLangs: [85,71,61,52,46, 42,38,36,33,32],
+            maessigQuer:  [85,71,61,52,'46a', '42a','38a','36a','33a','32a']
+          },
+          'Q524A/B': {
+            gutLangs: [70,58,50,'43a','38a', 35,32,29,27,26],
+            gutQuer:  [70,58,50,'43a','38a', '35a','32a','29a','27a','26a'],
+            maessigLangs: [100,83,71,61,54, 49,45,42,39,38],
+            maessigQuer:  [100,83,71,61,54, '49a','45a','42a','39a','38a']
+          },
+          'Q636A/B': {
+            gutLangs: [71,59,51,44,39, 35,32,30,28,27],
+            gutQuer:  [79,65,56,48,43, 39,35,'33b','31b','30b'],
+            maessigLangs: [102,84,72,63,55, 50,46,42,40,38],
+            maessigQuer:  [112,93,80,69,61, 55,50,47,44,42]
+          }
+        }
+      },
+      R: {
+        label: 'R-Matten',
+        types: ['R188A/B','R257A/B','R335A/B','R424A/B','R524A/B'],
+        richtungLabel1: 'Tragstoß Längsrichtung',
+        richtungLabel2: 'Verteilerstoß Querrichtung',
+        minQuer: { 'R188A/B': {d:6, l:15}, 'R257A/B': {d:6, l:15}, 'R335A/B': {d:6, l:15}, 'R424A/B': {d:8, l:25}, 'R524A/B': {d:8, l:25} },
+        l0: {
+          'R188A/B': {
+            gutLangs: [40,33,29,25,25, 25,25,25,25,25],
+            gutQuer:  [15,15,15,15,15, 15,15,15,15,15],
+            maessigLangs: [57,47,41,35,31, 28,26,25,25,25],
+            maessigQuer:  [15,15,15,15,15, 15,15,15,15,15]
+          },
+          'R257A/B': {
+            gutLangs: [47,39,33,29,25, 25,25,25,25,25],
+            gutQuer:  [15,15,15,15,15, 15,15,15,15,15],
+            maessigLangs: [66,55,47,41,36, 33,30,28,26,25],
+            maessigQuer:  [15,15,15,15,15, 15,15,15,15,15]
+          },
+          'R335A/B': {
+            gutLangs: [53,44,38,33,29, 26,25,25,25,25],
+            gutQuer:  [15,15,15,15,15, 15,15,15,15,15],
+            maessigLangs: [76,63,54,47,41, 37,34,32,30,29],
+            maessigQuer:  [15,15,15,15,15, 15,15,15,15,15]
+          },
+          'R424A/B': {
+            gutLangs: [60,50,43,37,33, 30,27,25,25,25],
+            gutQuer:  [30,30,30,30,30, 30,30,30,30,30],
+            maessigLangs: [85,71,61,52,46, 42,38,36,33,32],
+            maessigQuer:  [30,30,30,30,30, 30,30,30,30,30]
+          },
+          'R524A/B': {
+            gutLangs: [70,58,50,43,38, 35,32,29,27,26],
+            gutQuer:  [30,30,30,30,30, 30,30,30,30,30],
+            maessigLangs: [100,83,71,61,54, 49,45,42,39,38],
+            maessigQuer:  [30,30,30,30,30, 30,30,30,30,30]
+          }
+        }
+      }
+    },
+
+    state: { family: 'Q', type: 'Q188A/B', bond: 'gut' },
+
+    init() {
+      this.buildFamilyButtons();
+      this.buildTypeButtons();
+      this.buildBondButtons();
+      this.render();
+    },
+
+    buildFamilyButtons() {
+      const wrap = document.getElementById('hm-family-buttons');
+      if (!wrap) return;
+      wrap.innerHTML = Object.keys(this.families).map(f =>
+        `<button class="chip${f === this.state.family ? ' active' : ''}" data-family="${f}">${this.families[f].label}</button>`
+      ).join('');
+      wrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        this.state.family = btn.dataset.family;
+        this.state.type = this.families[this.state.family].types[0];
+        wrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+        this.buildTypeButtons();
+        this.render();
+      }));
+    },
+
+    buildTypeButtons() {
+      const wrap = document.getElementById('hm-type-buttons');
+      if (!wrap) return;
+      const types = this.families[this.state.family].types;
+      wrap.innerHTML = types.map(t =>
+        `<button class="chip${t === this.state.type ? ' active' : ''}" data-type="${t}">${t}</button>`
+      ).join('');
+      wrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        this.state.type = btn.dataset.type;
+        wrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+        this.render();
+      }));
+    },
+
+    buildBondButtons() {
+      const wrap = document.getElementById('hm-bond-buttons');
+      if (!wrap) return;
+      wrap.innerHTML = `
+        <button class="chip${this.state.bond === 'gut' ? ' active' : ''}" data-bond="gut">Guter Verbund</button>
+        <button class="chip${this.state.bond === 'maessig' ? ' active' : ''}" data-bond="maessig">Mäßiger Verbund</button>`;
+      wrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        this.state.bond = btn.dataset.bond;
+        wrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+        this.render();
+      }));
+    },
+
+    render() {
+      const fam = this.families[this.state.family];
+      const data = fam.l0[this.state.type];
+      const title = document.getElementById('hm-result-title');
+      const table = document.getElementById('hm-result-table');
+      const minQuerEl = document.getElementById('hm-min-quer');
+      if (!data || !table) return;
+
+      const langsKey = this.state.bond === 'gut' ? 'gutLangs' : 'maessigLangs';
+      const querKey  = this.state.bond === 'gut' ? 'gutQuer' : 'maessigQuer';
+
+      if (title) title.textContent = `Übergreifungslänge l₀ [cm] — ${this.state.type} (${this.state.bond === 'gut' ? 'guter' : 'mäßiger'} Verbund)`;
+
+      // Zellen können einen angehängten Fußnotenbuchstaben tragen (z.B. "43a" -> 43 mit Fußnote a)
+      const parseCell = v => {
+        const m = String(v).match(/^(\d+)([ab])?$/);
+        return m ? { num: m[1], foot: m[2] || null } : { num: v, foot: null };
+      };
+
+      const headerRow = this.grades.map(g => `<th>${g}</th>`).join('');
+      let usedFeet = new Set();
+      const renderRow = arr => arr.map(v => {
+        const c = parseCell(v);
+        if (c.foot) usedFeet.add(c.foot);
+        return `<td>${c.num}${c.foot ? `<sup>${c.foot})</sup>` : ''}</td>`;
+      }).join('');
+
+      const langsRow = renderRow(data[langsKey]);
+      const querRow  = renderRow(data[querKey]);
+
+      table.innerHTML = `
+        <thead><tr><th></th>${headerRow}</tr></thead>
+        <tbody>
+          <tr><td><b>${fam.richtungLabel1}</b></td>${langsRow}</tr>
+          <tr><td><b>${fam.richtungLabel2}</b></td>${querRow}</tr>
+        </tbody>`;
+
+      let footText = '';
+      if (usedFeet.has('a')) footText += '<div>a) Bei 2-achsiger Beanspruchung ist wegen der Randeinsparung die Überlappung auf 50cm zu vergrößern.</div>';
+      if (usedFeet.has('b')) footText += '<div>b) Bei 2-achsiger Beanspruchung ist wegen der Randeinsparung die Überlappung auf 35cm zu vergrößern.</div>';
+
+      const mq = fam.minQuer[this.state.type];
+      if (minQuerEl) {
+        minQuerEl.innerHTML = `
+          <div style="border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">
+            Mindestübergreifungslänge l<sub>0,min</sub> für Querstäbe (Ø${mq.d}mm): <b>${mq.l} cm</b>
+          </div>
+          ${footText}`;
+      }
+    }
+  };
+
+  const HelperRebar = {
+    diameters: [8, 10, 12, 14, 16, 20, 25, 28, 32, 40],
+    stirrupDiameters: [8, 10, 12, 14],
+    state: { legs: 2 },
+    fillAs: [],     // { d, n } — Einzelstäbe
+    fillAsLine: [], // { d, s } — Ø/Abstand-Kombinationen
+
+    barArea(d) { return Math.PI * (d / 2) ** 2 / 100; }, // cm², d in mm
+
+    init() {
+      const wrap = document.getElementById('br-asw-legs-buttons');
+      if (wrap) {
+        wrap.innerHTML = `
+          <button class="chip active" data-legs="2">2-schnittig</button>
+          <button class="chip" data-legs="4">4-schnittig</button>`;
+        wrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+          this.state.legs = parseInt(btn.dataset.legs);
+          wrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+          this.renderAsw();
+        }));
+      }
+
+      const dSelAs = document.getElementById('br-as-fill-d');
+      if (dSelAs) dSelAs.innerHTML = this.diameters.map(d => `<option value="${d}">Ø${d}</option>`).join('');
+      const dSelAsLine = document.getElementById('br-asline-fill-d');
+      if (dSelAsLine) dSelAsLine.innerHTML = this.diameters.filter(d => d <= 20).map(d => `<option value="${d}">Ø${d}</option>`).join('');
+
+      this.renderAs();
+      this.renderAsLine();
+      this.renderAsw();
+      this.renderAsFill();
+      this.renderAsLineFill();
+      this.updateAsFillPreview();
+      this.updateAsLineFillPreview();
+    },
+
+    // 1) Einzelstäbe: kleinste Stabanzahl je Ø, die erf. As erreicht
+    renderAs() {
+      const table = document.getElementById('br-as-table');
+      if (!table) return;
+      const asErf = parseFloat(document.getElementById('br-as-input').value) || 0;
+      if (asErf <= 0) { table.innerHTML = ''; return; }
+
+      const rows = this.diameters.map(d => {
+        const a1 = this.barArea(d);
+        const n = Math.ceil(asErf / a1);
+        const asVorh = n * a1;
+        const ausnutzung = (asErf / asVorh * 100);
+        return `<tr>
+          <td><b>Ø${d}</b></td>
+          <td>${n} × Ø${d}</td>
+          <td>${asVorh.toFixed(2)} cm²</td>
+          <td>${ausnutzung.toFixed(0)}%</td>
+        </tr>`;
+      }).join('');
+
+      table.innerHTML = `
+        <thead><tr><th>Ø [mm]</th><th>Vorschlag</th><th>A<sub>s,vorh</sub></th><th>Ausnutzung</th></tr></thead>
+        <tbody>${rows}</tbody>`;
+    },
+
+    // 2) Flächenbewehrung verteilt: Ø/Abstand-Kombinationen
+    renderAsLine() {
+      const table = document.getElementById('br-asline-table');
+      if (!table) return;
+      const asErf = parseFloat(document.getElementById('br-asline-input').value) || 0;
+      if (asErf <= 0) { table.innerHTML = ''; return; }
+
+      const rows = this.diameters.filter(d => d <= 20).map(d => {
+        const a1 = this.barArea(d);
+        const sErf = (100 * a1 / asErf); // cm, exakt erforderlicher Abstand
+        const sGew = Math.floor(sErf * 2) / 2; // auf 0,5cm-Raster abrunden (konservativ)
+        if (sGew < 5 || sGew > 35) return ''; // außerhalb praktikablem Bereich ausblenden
+        const asVorh = 100 * a1 / sGew;
+        return `<tr>
+          <td><b>Ø${d}</b></td>
+          <td>Ø${d}/${sGew.toFixed(1)}</td>
+          <td>${asVorh.toFixed(2)} cm²/m</td>
+        </tr>`;
+      }).join('');
+
+      table.innerHTML = `
+        <thead><tr><th>Ø [mm]</th><th>Vorschlag (Ø/Abstand cm)</th><th>a<sub>s,vorh</sub></th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="3" style="color:var(--text-muted);">Kein praktikabler Abstand (5–35cm) für diese Anforderung.</td></tr>'}</tbody>`;
+    },
+
+    // 3) Bügel: Ø/Abstand-Kombinationen bei gewählter Schnittigkeit
+    renderAsw() {
+      const table = document.getElementById('br-asw-table');
+      if (!table) return;
+      const aswErf = parseFloat(document.getElementById('br-asw-input').value) || 0;
+      if (aswErf <= 0) { table.innerHTML = ''; return; }
+      const legs = this.state.legs;
+
+      const rows = this.stirrupDiameters.map(d => {
+        const a1 = legs * this.barArea(d);
+        const sErf = (100 * a1 / aswErf);
+        const sGew = Math.floor(sErf * 2) / 2; // auf 0,5cm-Raster abrunden
+        if (sGew < 5 || sGew > 40) return '';
+        const aswVorh = 100 * a1 / sGew;
+        return `<tr>
+          <td><b>Ø${d}</b> (${legs}-schn.)</td>
+          <td>Ø${d}/${sGew.toFixed(1)}</td>
+          <td>${aswVorh.toFixed(2)} cm²/m</td>
+        </tr>`;
+      }).join('');
+
+      table.innerHTML = `
+        <thead><tr><th>Ø [mm]</th><th>Vorschlag (Ø/Abstand cm)</th><th>a<sub>sw,vorh</sub></th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="3" style="color:var(--text-muted);">Kein praktikabler Abstand (5–40cm) für diese Anforderung.</td></tr>'}</tbody>`;
+    },
+
+    // --- Auffüll-Rechner: As-Wahl (Einzelstäbe, mehrere Ø kombinierbar) ---
+    updateAsFillPreview() {
+      const d = parseInt(document.getElementById('br-as-fill-d').value) || 0;
+      const n = parseInt(document.getElementById('br-as-fill-n').value) || 0;
+      const preview = document.getElementById('br-as-fill-preview');
+      if (!preview) return;
+      if (d && n !== 0) {
+        const a = n * this.barArea(d);
+        preview.textContent = (a > 0 ? '+' : '−') + Math.abs(a).toFixed(2) + ' cm²';
+        preview.style.color = a > 0 ? 'var(--accent)' : 'var(--error)';
+      } else {
+        preview.textContent = '– cm²';
+        preview.style.color = 'var(--accent)';
+      }
+    },
+
+    addAsFillItem() {
+      const d = parseInt(document.getElementById('br-as-fill-d').value);
+      const n = parseInt(document.getElementById('br-as-fill-n').value) || 0;
+      if (!d || n === 0) return;
+      const existing = this.fillAs.find(item => item.d === d);
+      if (existing) {
+        existing.n += n;
+        if (existing.n <= 0) this.fillAs = this.fillAs.filter(item => item !== existing);
+      } else if (n > 0) {
+        this.fillAs.push({ d, n });
+      }
+      this.renderAsFill();
+    },
+
+    removeAsFillItem(idx) {
+      this.fillAs.splice(idx, 1);
+      this.renderAsFill();
+    },
+
+    renderAsFill() {
+      const list = document.getElementById('br-as-fill-list');
+      const summary = document.getElementById('br-as-fill-summary');
+      if (!list || !summary) return;
+      const asErf = parseFloat(document.getElementById('br-as-input').value) || 0;
+
+      if (this.fillAs.length === 0) {
+        list.innerHTML = '';
+        summary.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">Noch keine Bewehrung hinzugefügt.</span>';
+        return;
+      }
+
+      let gewaehlt = 0;
+      const rows = this.fillAs.map((item, idx) => {
+        const a = item.n * this.barArea(item.d);
+        gewaehlt += a;
+        return `<tr>
+          <td>${item.n} × Ø${item.d}</td>
+          <td>${a.toFixed(2)} cm²</td>
+          <td style="text-align:right;"><button class="btn-add" style="padding:3px 9px;font-size:11px;color:var(--error);border-color:var(--error);" onclick="HelperRebar.removeAsFillItem(${idx})">✕</button></td>
+        </tr>`;
+      }).join('');
+      list.innerHTML = `<thead><tr><th>Position</th><th>A<sub>s</sub></th><th></th></tr></thead><tbody>${rows}</tbody>`;
+
+      const diff = asErf - gewaehlt;
+      const ok = diff <= 0;
+      summary.innerHTML = `
+        <table class="detail-table" style="width:auto; max-width:440px; margin:0 auto;">
+          <tbody>
+            <tr><td>Erforderlich</td><td>${asErf.toFixed(2)} cm²</td></tr>
+            <tr><td>Gewählt (Summe)</td><td><b>${gewaehlt.toFixed(2)} cm²</b></td></tr>
+            <tr style="border-top:1px solid var(--border);">
+              <td><b>${ok ? 'Überschuss' : 'Differenz — noch erforderlich'}</b></td>
+              <td><b style="color:${ok ? 'var(--success)' : 'var(--error)'};">${Math.abs(diff).toFixed(2)} cm²</b></td>
+            </tr>
+          </tbody>
+        </table>`;
+    },
+
+    // --- Auffüll-Rechner: as-Wahl (Ø/Abstand-Kombinationen, z.B. Grundbewehrung + Zulage) ---
+    updateAsLineFillPreview() {
+      const d = parseInt(document.getElementById('br-asline-fill-d').value) || 0;
+      const s = parseFloat(document.getElementById('br-asline-fill-s').value) || 0;
+      const preview = document.getElementById('br-asline-fill-preview');
+      if (!preview) return;
+      preview.textContent = (d && s > 0) ? (100 * this.barArea(d) / s).toFixed(2) + ' cm²/m' : '– cm²/m';
+    },
+
+    addAsLineFillItem() {
+      const d = parseInt(document.getElementById('br-asline-fill-d').value);
+      const s = parseFloat(document.getElementById('br-asline-fill-s').value) || 0;
+      if (!d || s <= 0) return;
+      const existing = this.fillAsLine.find(item => item.d === d && item.s === s);
+      if (!existing) this.fillAsLine.push({ d, s });
+      this.renderAsLineFill();
+    },
+
+    removeAsLineFillItem(idx) {
+      this.fillAsLine.splice(idx, 1);
+      this.renderAsLineFill();
+    },
+
+    renderAsLineFill() {
+      const list = document.getElementById('br-asline-fill-list');
+      const summary = document.getElementById('br-asline-fill-summary');
+      if (!list || !summary) return;
+      const asErf = parseFloat(document.getElementById('br-asline-input').value) || 0;
+
+      if (this.fillAsLine.length === 0) {
+        list.innerHTML = '';
+        summary.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">Noch keine Bewehrung hinzugefügt.</span>';
+        return;
+      }
+
+      let gewaehlt = 0;
+      const rows = this.fillAsLine.map((item, idx) => {
+        const a = 100 * this.barArea(item.d) / item.s;
+        gewaehlt += a;
+        return `<tr>
+          <td>Ø${item.d}/${item.s.toFixed(1)}</td>
+          <td>${a.toFixed(2)} cm²/m</td>
+          <td style="text-align:right;"><button class="btn-add" style="padding:3px 9px;font-size:11px;color:var(--error);border-color:var(--error);" onclick="HelperRebar.removeAsLineFillItem(${idx})">✕</button></td>
+        </tr>`;
+      }).join('');
+      list.innerHTML = `<thead><tr><th>Position</th><th>a<sub>s</sub></th><th></th></tr></thead><tbody>${rows}</tbody>`;
+
+      const diff = asErf - gewaehlt;
+      const ok = diff <= 0;
+      summary.innerHTML = `
+        <table class="detail-table" style="width:auto; max-width:440px; margin:0 auto;">
+          <tbody>
+            <tr><td>Erforderlich</td><td>${asErf.toFixed(2)} cm²/m</td></tr>
+            <tr><td>Gewählt (Summe)</td><td><b>${gewaehlt.toFixed(2)} cm²/m</b></td></tr>
+            <tr style="border-top:1px solid var(--border);">
+              <td><b>${ok ? 'Überschuss' : 'Differenz — noch erforderlich'}</b></td>
+              <td><b style="color:${ok ? 'var(--success)' : 'var(--error)'};">${Math.abs(diff).toFixed(2)} cm²/m</b></td>
+            </tr>
+          </tbody>
+        </table>`;
+    }
+  };
+
+  const Logic = {
+    calcAnchorage() {
+      Data.sync();
+
+      const vEd       = parseFloat(document.getElementById('vEd_anch').value) || 0;
+      const cnom_a    = parseFloat(document.getElementById('cnom_anch').value) || 25;
+      const b_a       = parseFloat(document.getElementById('b_anch').value) || 30;
+      const grade_a   = document.getElementById('grade_anch').value || 'C25/30';
+      const direktLagerung = document.getElementById('lager_typ').value === 'direkt';
+      const lagerFaktor = direktLagerung ? (2/3) : 1.0; // NCI zu 9.2.1.4
+      const thetaMode = document.getElementById('theta_mode').value;
+      const thetaRaw  = parseFloat(document.getElementById('cot_theta').value) || (thetaMode==='deg' ? 30 : 2.0);
+      const cotTheta  = thetaMode === 'deg'
+        ? Math.max(1.0, Math.min(2.5, 1 / Math.tan(thetaRaw * Math.PI / 180)))
+        : Math.max(1.0, Math.min(2.5, thetaRaw));
+      const asErfBieg = parseFloat(document.getElementById('asErf_anch').value) || 0;
+      const bSup_cm   = parseFloat(document.getElementById('supWidth').value) || 24;
+      const bSup_mm   = bSup_cm * 10;
+      const l_vorh    = bSup_mm - cnom_a;
+
+      const a3_d    = parseFloat(document.getElementById('alpha3_d').value) || 0;
+      const a3_n    = parseInt(document.getElementById('alpha3_n').value) || 0;
+      const a3_legs = parseInt(document.getElementById('alpha3_legs').value) || 4;
+      const use_a3  = a3_d > 0 && a3_n > 0;
+
+      // α5 (Querdruck) ist physikalisch nur bei direkter Lagerung wirksam — die Auflagerpressung
+      // entsteht durch die direkte Reaktionskraft an der Verankerungsstelle. Bei indirekter
+      // Lagerung fehlt dieser Effekt, daher wird das Feld ignoriert und α5=1,0 erzwungen.
+      const fEd_a5  = direktLagerung ? (parseFloat(document.getElementById('fEd_alpha5').value) || 0) : 0;
+      const p_quer  = fEd_a5 > 0 ? (fEd_a5 * 10) / (bSup_cm * b_a) : 0;
+      const alpha5  = p_quer > 0 ? Math.min(1.0, 1 - 0.04 * p_quer) : 1.0;
+
+      const concrete  = Materials.concrete[grade_a] || Materials.concrete['C25/30'];
+      const f_ctd = concrete.fctk05 / 1.5;
+      // f_bd (Verbundfestigkeit) wird jetzt PRO Bewehrungsposition berechnet, da η1 (Verbundbedingung)
+      // je nach Lage (obere/untere Bewehrung) unterschiedlich sein kann — siehe posResults.map unten.
+      const f_yd  = 500 / 1.15;
+      const f_yd_kN_cm2 = f_yd / 10;
+
+      const F_td = vEd * cotTheta / 2;
+      const As_anch_erf = F_td / f_yd_kN_cm2;
+
+      let totalAs = 0;
+      const pos = [];
+      document.querySelectorAll('#rebar-body-anch tr').forEach(row => {
+        const cells = row.cells;
+        if (!cells || cells.length < 4) return;
+        const nInput = cells[0].querySelector('input');
+        const dSel   = cells[1].querySelector('select');
+        const eSel   = cells[2].querySelector('select');
+        const bSel   = cells[3].querySelector('select');
+        if (!nInput || !dSel || !eSel || !bSel) return;
+        const n    = parseFloat(nInput.value) || 0;
+        const d    = parseFloat(dSel.value)   || 0;
+        const eVal = eSel.value || '1.0';
+        const bnd  = parseFloat(bSel.value)   || 1.0;
+        const isSchlaufe = eVal === '0.7S';
+        const a1   = isSchlaufe ? 0.7 : (parseFloat(eVal) || 1.0);
+        if (n > 0 && d > 0) {
+          const nEff = isSchlaufe ? n * 2 : n;
+          const As   = nEff * Math.PI * (d/2)**2 / 100;
+          totalAs += As;
+          pos.push({ n, nEff, d, a1, bnd, As, isSchlaufe });
+        }
+      });
+
+      if (totalAs === 0) {
+        document.getElementById('res-anch').innerHTML =
+          '<div class="res-card" style="border-left-color:var(--error)">Bitte mindestens eine Bewehrungsposition eingeben.</div>';
+        return;
+      }
+
+      const sigma_VMR   = vEd > 0 ? Math.min((F_td * 10) / totalAs, f_yd) : null;
+      const sigma_Biege = (asErfBieg > 0 && totalAs > 0 && vEd === 0) ? Math.min(f_yd * (asErfBieg / totalAs), f_yd) : null;
+
+      // Bei V_Ed = 0 liefert die Verschiebemaßregel keine Zugkraft (F_td = 0, As_anch_erf = 0).
+      // Ohne anderweitige Grundlage (Erf. As Biegung) ist dann konsequenterweise auch σ_sd = 0
+      // anzusetzen -> l_bd wird nur noch von l_b,min bestimmt, statt widersprüchlich von der
+      // vollen Streckgrenze auszugehen.
+      let sigma_sd = vEd > 0 ? sigma_VMR : (sigma_Biege !== null ? sigma_Biege : 0);
+      if (isNaN(sigma_sd)) sigma_sd = 0;
+
+      const ok_anch_as = totalAs >= As_anch_erf;
+      const As_bgl_a3 = use_a3 ? a3_legs * Math.PI * (a3_d/2)**2 / 100 : 0;
+
+      const posResults = pos.map(p => {
+        const cd = cnom_a;
+        const a2 = p.a1 < 1.0
+          ? Math.max(0.7, Math.min(1.0, 1 - 0.15*(cd - 3*p.d) / p.d))
+          : Math.max(0.7, Math.min(1.0, 1 - 0.15*(cd - p.d) / p.d));
+
+        const K       = p.a1 < 1.0 ? 0.05 : 0.1;
+        const As_stab = p.As / p.nEff;
+        const eta2    = p.d > 32 ? (132 - p.d) / 100 : 1.0; // EC2 8.4.2(2), nur relevant bei Ø>32mm
+        const f_bd    = 2.25 * p.bnd * eta2 * f_ctd; // η1 aus der Position (gute/mäßige Verbundbedingung)
+        const lb_rqd  = (p.d / 4) * (sigma_sd / f_bd);
+
+        // NCI zu 9.2.1.4: bei direkter Lagerung darf lbd mit dem Faktor 2/3 reduziert werden;
+        // l_b,min sinkt dabei entsprechend von max{0,3·lb,rqd;10Ø;100mm} auf max{0,2·lb,rqd;6,7Ø}.
+        const lb_min = direktLagerung
+          ? Math.max(0.2 * lb_rqd, 6.7 * p.d)
+          : Math.max(0.3 * lb_rqd, 10 * p.d, 100);
+
+        let lbd    = Math.max(lagerFaktor * 0.7 * lb_rqd, lb_min);
+        let alpha3 = 1.0;
+        let n_bgl  = 0;
+
+        for (let iter = 0; iter < 12; iter++) {
+          if (use_a3 && As_bgl_a3 > 0) {
+            n_bgl = a3_n;
+            const As_t    = n_bgl * As_bgl_a3;
+            const As_tmin = 0.25 * As_stab;
+            alpha3 = Math.max(0.7, Math.min(1.0, 1 - K * (As_t - As_tmin) / As_stab));
+          }
+          const a2a3a5_it   = Math.max(0.7, a2 * alpha3 * alpha5);
+          const lbd_neu     = Math.max(lagerFaktor * p.a1 * a2a3a5_it * lb_rqd, lb_min);
+          if (Math.abs(lbd_neu - lbd) < 0.5) { lbd = lbd_neu; break; }
+          lbd = lbd_neu;
+        }
+
+        const a2a3a5      = Math.max(0.7, a2 * alpha3 * alpha5);
+        const gesamtfaktor = p.a1 * a2a3a5;
+
+        return { ...p, a2, alpha3, n_bgl, alpha5, a1a2a5: gesamtfaktor, lb_rqd, lbd, ok: lbd <= l_vorh };
+      });
+
+      const allOk = posResults.every(p => p.ok);
+
+      let html = `<div class="res-card" style="border-left-color:${allOk && ok_anch_as ? 'var(--success)':'var(--error)'}">
+        <h3 style="font-family:var(--font-d);margin:0 0 14px;">Ergebnis Verankerung am Endauflager</h3>
+        <div style="color:var(--text-muted);font-size:11px;margin-bottom:6px;">${direktLagerung ? 'Direkte Lagerung — NCI zu 9.2.1.4: l<sub>bd</sub> mit Faktor 2/3 reduziert, l<sub>b,min</sub>=max(0,2·l<sub>b,rqd</sub>; 6,7·Ø)' : 'Indirekte Lagerung — Regelfall nach 8.4.4, l<sub>b,min</sub>=max(0,3·l<sub>b,rqd</sub>; 10·Ø; 100mm)'}</div>
+        <div>Erforderliches A<sub>s,anch</sub>: <b>${As_anch_erf.toFixed(2)} cm²</b> | Vorhanden: <b>${totalAs.toFixed(2)} cm²</b></div>
+        <hr>
+        <table class="detail-table">
+          <thead><tr><th>Pos.</th><th>Bewehrung</th><th>A<sub>s</sub></th><th>l<sub>bd</sub> erf.</th><th>l<sub>vorh</sub></th><th>Status</th></tr></thead><tbody>`;
+
+      posResults.forEach((i, p) => {
+        html += `<tr>
+          <td>${p+1}</td>
+          <td>${i.n} × Ø${i.d} mm <small style="color:var(--text-muted);">(η₁=${i.bnd.toFixed(1)})</small></td>
+          <td>${i.As.toFixed(2)} cm²</td>
+          <td><b>${i.lbd.toFixed(0)} mm</b></td>
+          <td>${l_vorh.toFixed(0)} mm</td>
+          <td style="color:${i.ok?'var(--success)':'var(--error)'};font-weight:bold;">${i.ok?'✓ OK':'✗ NG'}</td>
+        </tr>`;
+      });
+      html += `</tbody></table>`;
+      
+      html += `
+        <details class="calc-steps" style="margin-top: 16px;">
+          <summary style="cursor:pointer; font-size:11px; color:var(--text-muted); font-weight:bold;">🔍 Rechenweg & Formeln einblenden</summary>
+          <div style="margin-top:10px; font-size:11px; color:var(--text-secondary); line-height:1.6; background:rgba(0,0,0,0.2); padding:12px; border-radius:6px; border:1px solid var(--border);">
+            f<sub>ctd</sub> = α<sub>ct</sub> · f<sub>ctk;0,05</sub> / γ<sub>c</sub> = 1.0 · ${concrete.fctk05.toFixed(2)} / 1.5 = ${f_ctd.toFixed(2)} MPa<br>
+            f<sub>bd</sub> = 2.25 · η<sub>1</sub> · η<sub>2</sub> · f<sub>ctd</sub> — η₁ wird je Bewehrungsposition angesetzt (s. Tabelle oben), η₂=(132-Ø)/100 nur bei Ø&gt;32mm, sonst 1,0 — daher kein einzelner Zahlenwert hier<br>
+            F<sub>td</sub> = 0.5 · V<sub>Ed</sub> · cot θ = 0.5 · ${vEd.toFixed(1)} · ${cotTheta.toFixed(2)} = ${F_td.toFixed(1)} kN<br>
+            A<sub>s,anch,erf</sub> = F<sub>td</sub> / f<sub>yd</sub> = ${F_td.toFixed(1)} / ${f_yd_kN_cm2.toFixed(2)} = ${As_anch_erf.toFixed(2)} cm²<br>
+            σ<sub>sd</sub> = (F<sub>td</sub> · 10) / A<sub>s,vorh</sub> = (${F_td.toFixed(1)} · 10) / ${totalAs.toFixed(2)} = ${sigma_sd.toFixed(1)} N/mm² (max. f<sub>yd</sub> = ${f_yd.toFixed(1)} N/mm²)<br>
+            l<sub>b,rqd</sub> = (Ø / 4) · (σ<sub>sd</sub> / f<sub>bd</sub>)<br>
+            l<sub>bd</sub> = ${direktLagerung ? '(2/3) · ' : ''}α<sub>1</sub> · α<sub>2</sub> · α<sub>3</sub> · α<sub>5</sub> · l<sub>b,rqd</sub> ≥ l<sub>b,min</sub>${direktLagerung ? ' (Faktor 2/3 wg. direkter Lagerung, NCI zu 9.2.1.4)' : ''}
+          </div>
+        </details>
+      </div>`;
+      
+      html += drawAnchorageSVG(posResults, l_vorh, bSup_mm, cnom_a);
+
+      document.getElementById('res-anch').innerHTML = html;
+    },
+
+    calcSuspension() {
+      Data.sync();
+      const fEd = parseFloat(document.getElementById('fEd_susp').value) || 0;
+      const h1 = parseFloat(document.getElementById('h_susp').value) || 60;
+      const b1 = parseFloat(document.getElementById('b_susp').value) || 30;
+      const h2 = parseFloat(document.getElementById('h_nt').value) || 40;
+      const b2 = parseFloat(document.getElementById('b_nt').value) || 20;
+
+      const fyd_kNcm2 = (500 / 1.15) / 10;
+      const As_aufh_erf = fEd / fyd_kNcm2;
+
+      // Vertikale Bügel
+      const dSusp = parseFloat(document.getElementById('d_susp').value) || 10;
+      const legs  = parseInt(document.getElementById('legs').value) || 4;
+      const nKZ   = parseInt(document.getElementById('n_susp').value) || 2;
+
+      const As1_st = legs * Math.PI * (dSusp / 2)**2 / 100;
+
+      // Zulässige Auslagerungszone (geometrisch, unabhängig von der Bügelanzahl)
+      const xAusg = h2 / 3; // je Seite [cm]
+      const as_sw_erf = parseFloat(document.getElementById('as_sw_erf').value) || 0;
+
+      // Schritt 1: erf. Schubbewehrung NUR im Kreuzungsbereich b2 (immer relevant, unabhängig
+      // von einer eventuellen Auslagerung) + Hochhängebewehrung.
+      const As_schub_kreuz = as_sw_erf * (b2 / 100);
+      const As_ges_erf_1   = As_aufh_erf + As_schub_kreuz;
+      const nErf_1         = Math.ceil(As_ges_erf_1 / As1_st);
+      const nAusg_1         = Math.max(0, nErf_1 - nKZ);
+
+      // Schritt 2: nur WENN dieser Bedarf bereits eine Auslagerung erzwingt, wird zusätzlich
+      // die Schubbewehrung in der (dann tatsächlich benötigten) Auslagerungszone angesetzt.
+      let As_schub_erf, As_ges_erf, nErf, nAusg, l_relevant_m;
+      const auslagerungAktiv = nAusg_1 > 0;
+      if (auslagerungAktiv) {
+        l_relevant_m  = (b2 + 2 * xAusg) / 100;
+        As_schub_erf  = as_sw_erf * l_relevant_m;
+        As_ges_erf    = As_aufh_erf + As_schub_erf;
+        nErf          = Math.ceil(As_ges_erf / As1_st);
+        nAusg         = Math.max(0, nErf - nKZ);
+      } else {
+        l_relevant_m  = b2 / 100;
+        As_schub_erf  = As_schub_kreuz;
+        As_ges_erf    = As_ges_erf_1;
+        nErf          = nErf_1;
+        nAusg         = nAusg_1;
+      }
+
+      const As_aufh_vorh = nErf * As1_st;
+      const nAusgProSeite = Math.ceil(nAusg / 2);
+
+      // Horizontalbewehrung — n_horiz ist die Anzahl JE SEITE (symmetrisch, beide Seiten gleich)
+      const nHorizSeite = parseInt(document.getElementById('n_horiz').value) || 0;
+      const nHoriz = nHorizSeite * 2; // Gesamtmenge über beide Seiten
+      const dHoriz = parseFloat(document.getElementById('d_horiz').value) || 10;
+      const legsHoriz = 1; // gerade Einzelstäbe (Stegbewehrung Hauptträger), 1-schnittig je Seite
+
+      const As1_horiz = legsHoriz * Math.PI * (dHoriz / 2)**2 / 100;
+      const As_horiz_vorh = nHoriz * As1_horiz;
+
+      // Erforderliche Horizontalbewehrung nach NCI zu 9.2.5(2) — unverändert:
+      // Bügel außerhalb des unmittelbaren Kreuzungsbereichs dürfen angeordnet werden,
+      // wenn eine über die Höhe verteilte Horizontalbewehrung vorhanden ist, deren
+      // Gesamtquerschnittsfläche dem Gesamtquerschnitt dieser (ausgelagerten) Bügel entspricht.
+      const n_ausg_vorh  = 2 * nAusgProSeite;      // tatsächlich angeordnete ausgelagerte Bügel (symmetrisch)
+      const As_ausg_vorh = n_ausg_vorh * As1_st;   // Gesamtquerschnitt dieser Bügel
+      const As_horiz_erf = nAusg > 0 ? As_ausg_vorh : 0;
+
+      // Vorschlag: wie viele Stäbe (mit aktuell gewähltem Ø) wären JE SEITE nötig,
+      // um As_horiz_erf (Gesamtfläche, beide Seiten) zu decken?
+      const n_horiz_erf_proSeite = As1_horiz > 0 ? Math.ceil((As_horiz_erf / 2) / As1_horiz) : 0;
+      const n_horiz_erf          = n_horiz_erf_proSeite * 2;
+
+      const isBügelOk = As_aufh_vorh >= As_ges_erf;
+      const isHorizOk = nAusg === 0 || As_horiz_vorh >= As_horiz_erf;
+      const allOk = isBügelOk && isHorizOk;
+
+      let html = `<div class="res-card" style="border-left-color:${allOk ? 'var(--success)' : 'var(--error)'}">
+        <h3 style="font-family:var(--font-d);margin:0 0 14px;">Ergebnis Hochhängebewehrung & Zusätzliche Horizontalbewehrung</h3>
+        
+        <table class="detail-table">
+          <thead>
+            <tr>
+              <th>Bewehrungskomponente</th>
+              <th>Erforderlich</th>
+              <th>Gewählt / Vorhanden</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>Vertikale Bügel</b> (Hochhängebew. + Schubbew. im Bereich N.T.)</td>
+              <td>A<sub>s,aufh,erf</sub> = ${As_aufh_erf.toFixed(2)} + A<sub>s,schub,erf</sub> = ${As_schub_erf.toFixed(2)} = <b>${As_ges_erf.toFixed(2)} cm²</b> (n<sub>erf</sub> = ${nErf} Stk)</td>
+              <td><b>${nErf} × Ø${dSusp}</b> (${legs}-schn.) = <b>${As_aufh_vorh.toFixed(2)} cm²</b></td>
+              <td style="color:${isBügelOk?'var(--success)':'var(--error)'};font-weight:bold;">${isBügelOk?'✓ OK':'✗ ERHÖHEN'}</td>
+            </tr>
+            <tr>
+              <td><b>Ausgelagerte Bügel</b> (außerhalb b₂=${b2}cm)</td>
+              <td>n<sub>ausg</sub> = <b>${nAusg} Stk</b> (${nAusgProSeite} Stk/Seite)</td>
+              <td>Zone h₂/3 = <b>${xAusg.toFixed(1)} cm</b></td>
+              <td style="color:var(--accent);font-weight:bold;">${nAusg > 0 ? '⚠️ Auslagerung aktiv' : '✓ Keine Auslagerung'}</td>
+            </tr>
+            <tr>
+              <td><b>Horizontalbewehrung</b> (über Höhe verteilt, NCI zu 9.2.5(2))</td>
+              <td>A<sub>s,h,erf</sub> = A<sub>s,ausg</sub> = <b>${As_horiz_erf.toFixed(2)} cm²</b> (${n_ausg_vorh} ausgel. Bügel)<br>
+                  <small style="color:var(--text-muted)">Vorschlag: je Seite ${n_horiz_erf_proSeite} × Ø${dHoriz} (1-schn., gerade) &nbsp;→&nbsp; gesamt ${n_horiz_erf} Stk</small></td>
+              <td><b>je Seite ${nHorizSeite} × Ø${dHoriz}</b> (1-schn.) = gesamt ${nHoriz} Stk = <b>${As_horiz_vorh.toFixed(2)} cm²</b></td>
+              <td style="color:${isHorizOk?'var(--success)':'var(--error)'};font-weight:bold;">${isHorizOk?'✓ OK':'✗ ERHÖHEN'}</td>
+            </tr>
+          </tbody>
+        </table>`;
+
+      html += `
+        <details class="calc-steps" style="margin-top: 16px;">
+          <summary style="cursor:pointer; font-size:11px; color:var(--text-muted); font-weight:bold;">🔍 Rechenweg & Formeln einblenden</summary>
+          <div style="margin-top:10px; font-size:11px; color:var(--text-secondary); line-height:1.6; background:rgba(0,0,0,0.2); padding:12px; border-radius:6px; border:1px solid var(--border);">
+            A<sub>s,aufh,erf</sub> = F<sub>Ed</sub> / f<sub>yd</sub> = ${fEd.toFixed(1)} / ${fyd_kNcm2.toFixed(2)} = ${As_aufh_erf.toFixed(2)} cm²<br>
+            Prüfung ob Auslagerung erforderlich: A<sub>s,aufh,erf</sub> + a<sub>sw,erf</sub>·b₂ = ${As_aufh_erf.toFixed(2)} + ${as_sw_erf.toFixed(2)}·${(b2/100).toFixed(2)} = ${As_ges_erf_1.toFixed(2)} cm² → n<sub>erf</sub> = ${nErf_1} Stk ${auslagerungAktiv ? `> n<sub>KZ</sub> = ${nKZ} → Auslagerung aktiv` : `≤ n<sub>KZ</sub> = ${nKZ} → keine Auslagerung nötig`}<br>
+            Maßgebende Länge für a<sub>sw,erf</sub>: ${auslagerungAktiv ? `l = b₂ + 2·x<sub>ausg</sub> = ${b2.toFixed(1)} + 2·${xAusg.toFixed(1)} = ${(b2+2*xAusg).toFixed(1)} cm` : `l = b₂ = ${b2.toFixed(1)} cm (keine Auslagerung, Auslagerungszone bleibt unberücksichtigt)`} = ${l_relevant_m.toFixed(2)} m<br>
+            A<sub>s,schub,erf</sub> = a<sub>sw,erf</sub> · l = ${as_sw_erf.toFixed(2)} · ${l_relevant_m.toFixed(2)} = ${As_schub_erf.toFixed(2)} cm²<br>
+            A<sub>s,ges,erf</sub> = A<sub>s,aufh,erf</sub> + A<sub>s,schub,erf</sub> = ${As_aufh_erf.toFixed(2)} + ${As_schub_erf.toFixed(2)} = <b>${As_ges_erf.toFixed(2)} cm²</b><br>
+            Gewählt: ${nErf} × Ø${dSusp} (${legs}-schnittig) = ${As_aufh_vorh.toFixed(2)} cm²<br>
+            Zulässige Auslagerungszone: x<sub>ausg</sub> = h<sub>2</sub> / 3 = ${xAusg.toFixed(1)} cm<br>
+            Ausgelagerte Bügel (außerhalb Kreuzungsbereich): n<sub>ausg,vorh</sub> = ${n_ausg_vorh} × Ø${dSusp} (${legs}-schn.) = A<sub>s,ausg</sub> = ${As_ausg_vorh.toFixed(2)} cm²<br>
+            Nach NCI zu 9.2.5(2): A<sub>s,h,erf</sub> = A<sub>s,ausg</sub> = <b>${As_horiz_erf.toFixed(2)} cm²</b> — Gesamtquerschnitt der über die Höhe verteilten Horizontalbewehrung muss dem Gesamtquerschnitt der ausgelagerten Bügel entsprechen.<br>
+            Vorschlag bei Ø${dHoriz} (1-schnittig, gerader Einzelstab, A<sub>s1</sub>=${As1_horiz.toFixed(2)} cm²): n<sub>horiz,erf</sub> je Seite = ⌈(A<sub>s,h,erf</sub>/2) / A<sub>s1</sub>⌉ = ⌈${(As_horiz_erf/2).toFixed(2)} / ${As1_horiz.toFixed(2)}⌉ = <b>${n_horiz_erf_proSeite} Stk je Seite</b> (gesamt ${n_horiz_erf} Stk, symmetrisch über die Höhe verteilt)
+          </div>
+        </details>
+      </div>`;
+
+      html += drawSuspensionSVG({
+        h1, h2, b1, b2,
+        fEd: fEd.toFixed(0),
+        nKZ,
+        nAusg,
+        nAusgProSeite,
+        nHoriz,
+        asHorizVorh: As_horiz_vorh
+      });
+
+      document.getElementById('res-susp').innerHTML = html;
+
+      // Live-Update: sobald einmal gerechnet wurde, lösen Änderungen an den Eingaben
+      // automatisch eine Neuberechnung aus (kein stehen gebliebenes altes Ergebnis mehr).
+      if (!this._suspLiveBound) {
+        ['fEd_susp','h_susp','b_susp','h_nt','b_nt','d_susp','legs','n_susp','as_sw_erf','n_horiz','d_horiz'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.addEventListener('input', () => this.calcSuspension());
+        });
+        this._suspLiveBound = true;
+      }
+    }
+  };
+
+  window.onload = () => UI.init();
+</script>
+</body>
+</html>
