@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -322,7 +321,7 @@
       #main { margin-left: 0 !important; padding: 0 !important; max-width: 100% !important; }
       /* Kleine Helferlein: reine Nachschlagetabellen, kein Ausdruck vorgesehen */
       #page-helper-anchlen, #page-helper-laplen, #page-helper-laplen-mesh, #page-helper-mandrel, #page-helper-rebar-as, #page-helper-rebar-asline, #page-helper-rebar-asw { display: none !important; }
-      #save-card-anch, #save-card-susp, #disclaimer-modal { display: none !important; }
+      #save-card-anch, #save-card-susp, #disclaimer-modal, #impressum-modal, #datenschutz-modal, #lizenz-modal { display: none !important; }
       /* Betondeckung: nur die getroffene Auswahl als Text zeigen, nicht die ganze interaktive Liste */
       #hc-scenario-groups { display: none !important; }
       #hc-print-summary { display: block !important; }
@@ -455,9 +454,9 @@
     <button class="btn btn-secondary" onclick="UI.printInNewWindow()" style="width:100%; font-size:11px; padding:8px;">🖨️ Bericht drucken (neues Fenster)</button>
     <div style="text-align:center; margin-top:10px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
       <a href="#" onclick="UI.toggleDisclaimer(); return false;" style="font-size:10px; color:var(--text-muted); text-decoration:underline; cursor:pointer;">⚖️ Haftungsausschluss</a>
-      <a href="impressum.html" target="_blank" rel="noopener" style="font-size:10px; color:var(--text-muted); text-decoration:underline;">Impressum</a>
-      <a href="datenschutz.html" target="_blank" rel="noopener" style="font-size:10px; color:var(--text-muted); text-decoration:underline;">Datenschutz</a>
-      <a href="LICENZE" target="_blank" rel="noopener" style="font-size:10px; color:var(--text-muted); text-decoration:underline;">Lizenz</a>
+      <a href="#" onclick="UI.toggleImpressum(); return false;" style="font-size:10px; color:var(--text-muted); text-decoration:underline; cursor:pointer;">Impressum</a>
+      <a href="#" onclick="UI.toggleDatenschutz(); return false;" style="font-size:10px; color:var(--text-muted); text-decoration:underline; cursor:pointer;">Datenschutz</a>
+      <a href="#" onclick="UI.toggleLizenz(); return false;" style="font-size:10px; color:var(--text-muted); text-decoration:underline; cursor:pointer;">Lizenz</a>
     </div>
   </div>
 </aside>
@@ -472,6 +471,70 @@
       <p>Sämtliche Ergebnisse sind vor der praktischen Anwendung eigenständig zu verifizieren und von einer bauaufsichtlich hierzu berechtigten Person zu prüfen und freizugeben.</p>
     </div>
     <button class="btn btn-primary" onclick="UI.toggleDisclaimer()" style="margin-top:20px; width:100%;">Verstanden</button>
+  </div>
+</div>
+
+<div id="impressum-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; max-width:560px; max-height:80vh; overflow-y:auto; padding:28px; position:relative;">
+    <h2 style="font-family:var(--font-d); color:var(--accent); margin:0 0 16px; font-size:18px;">Impressum</h2>
+    <div style="font-size:13px; line-height:1.7; color:var(--text-secondary);">
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">Angaben gemäß § 5 DDG</p>
+      <p>Albert Hohm<br>Obere Kirchrainstr. 1<br>63853 Mömlingen</p>
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">Kontakt</p>
+      <p>E-Mail: <a href="mailto:albert.hohm@online.de" style="color:var(--accent);">albert.hohm@online.de</a></p>
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">Verantwortlich für den Inhalt gemäß § 18 Abs. 2 MStV</p>
+      <p>Albert Hohm, Anschrift wie oben</p>
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">Hosting</p>
+      <p>Die Onlineversion dieser Seite wird über GitHub Pages gehostet, bereitgestellt von GitHub Inc., 88 Colin P Kelly Jr St, San Francisco, CA 94107, USA (ein Tochterunternehmen der Microsoft Corporation). Details siehe Datenschutzerklärung.</p>
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">Haftungshinweis</p>
+      <p>Das EC2-Bemessungstool ist eine kostenlose Arbeitshilfe. Es ersetzt nicht die eigenverantwortliche fachliche Prüfung durch einen qualifizierten Tragwerksplaner. Für die Richtigkeit der Ergebnisse wird keine Gewähr übernommen. Der Quellcode wird unter der MIT-Lizenz „wie besehen", ohne jegliche Gewährleistung bereitgestellt.</p>
+    </div>
+    <button class="btn btn-primary" onclick="UI.toggleImpressum()" style="margin-top:20px; width:100%;">Schließen</button>
+  </div>
+</div>
+
+<div id="datenschutz-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; max-width:560px; max-height:80vh; overflow-y:auto; padding:28px; position:relative;">
+    <h2 style="font-family:var(--font-d); color:var(--accent); margin:0 0 16px; font-size:18px;">Datenschutzerklärung</h2>
+    <div style="font-size:13px; line-height:1.7; color:var(--text-secondary);">
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">1. Verantwortlicher</p>
+      <p>Albert Hohm, Obere Kirchrainstr. 1, 63853 Mömlingen, E-Mail: <a href="mailto:albert.hohm@online.de" style="color:var(--accent);">albert.hohm@online.de</a></p>
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">2. Hosting über GitHub Pages (nur bei Aufruf der Onlineversion)</p>
+      <p>Wird diese Seite über die Onlineversion (GitHub Pages) aufgerufen statt als lokale Datei geöffnet, verarbeitet GitHub automatisch technische Zugriffsdaten (Server-Logfiles): IP-Adresse, Datum/Uhrzeit der Anfrage, aufgerufene Seite/Datei, Browsertyp/-version, Betriebssystem, Referrer-URL. Dies dient der Auslieferung der Seite sowie Sicherheit/Stabilität (Art. 6 Abs. 1 lit. f DSGVO). Die Datenübermittlung an GitHub/Microsoft (USA) erfolgt auf Grundlage der EU-Standardvertragsklauseln. Weitere Informationen: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener" style="color:var(--accent);">GitHub Privacy Statement</a>. Gleiches gilt beim Download der Software (z. B. über GitHub Releases).</p>
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">3. Google Fonts</p>
+      <p>Dieses Tool bindet Schriftarten von Google Fonts ein, die beim Aufruf von Servern von Google Ireland Limited (bzw. Google LLC, USA) geladen werden — <b>auch wenn die Datei lokal/offline geöffnet wird</b>, sofern eine Internetverbindung besteht. Dabei kann Ihre IP-Adresse an Google übertragen werden. Weitere Informationen: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener" style="color:var(--accent);">Google-Datenschutzerklärung</a>.</p>
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">4. Lokale Datenspeicherung im Tool selbst</p>
+      <p>Das EC2-Bemessungstool speichert Projekt- und Eingabedaten ausschließlich lokal im Browser (localStorage) auf Ihrem Endgerät. Es findet keine Übertragung dieser Eingabedaten an einen Server statt.</p>
+      <p style="font-weight:600; color:var(--text-primary); margin-top:14px;">5. Ihre Rechte</p>
+      <p>Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung Sie betreffender personenbezogener Daten nach Maßgabe der Art. 15–21 DSGVO. Zudem besteht ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde.</p>
+    </div>
+    <button class="btn btn-primary" onclick="UI.toggleDatenschutz()" style="margin-top:20px; width:100%;">Schließen</button>
+  </div>
+</div>
+
+<div id="lizenz-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; max-width:560px; max-height:80vh; overflow-y:auto; padding:28px; position:relative;">
+    <h2 style="font-family:var(--font-d); color:var(--accent); margin:0 0 16px; font-size:18px;">Lizenz — MIT License</h2>
+    <div style="font-size:12.5px; line-height:1.7; color:var(--text-secondary); font-family:var(--font-m); white-space:pre-wrap;">Copyright (c) 2026 Albert Hohm
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</div>
+    <button class="btn btn-primary" onclick="UI.toggleLizenz()" style="margin-top:20px; width:100%;">Schließen</button>
   </div>
 </div>
 
@@ -1273,6 +1336,24 @@
       if (!modal) return;
       const isOpen = modal.style.display === 'flex';
       modal.style.display = isOpen ? 'none' : 'flex';
+    },
+
+    toggleImpressum() {
+      const modal = document.getElementById('impressum-modal');
+      if (!modal) return;
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    },
+
+    toggleDatenschutz() {
+      const modal = document.getElementById('datenschutz-modal');
+      if (!modal) return;
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+    },
+
+    toggleLizenz() {
+      const modal = document.getElementById('lizenz-modal');
+      if (!modal) return;
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
     },
 
     // Bereitet den Ausdruck vor (Rechenweg aufklappen, Druckkopf befüllen, SVG-viewBox zuschneiden)
@@ -3240,3 +3321,4 @@
 </script>
 </body>
 </html>
+
