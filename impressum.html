@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Impressum — EC2-Bemessungstool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F5EF; --panel:#FFFFFF; --ink:#1E1E1E; --ink-dim:#66645C;
+    --line-faint: rgba(30,30,30,0.14); --grid-fine: rgba(30,30,30,0.06); --grid-bold: rgba(30,30,30,0.16);
+    --red:#C23B2E;
+    --font-display:'Space Grotesk',sans-serif; --font-body:'IBM Plex Sans',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      linear-gradient(var(--grid-fine) 1px, transparent 1px) 0 0/8px 8px,
+      linear-gradient(90deg, var(--grid-fine) 1px, transparent 1px) 0 0/8px 8px,
+      linear-gradient(var(--grid-bold) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--grid-bold) 1px, transparent 1px) 0 0/40px 40px,
+      var(--bg);
+    color:var(--ink); font-family:var(--font-body); line-height:1.6;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:64px 28px 100px;}
+  a{ color:var(--red); }
+  .back{ font-family:var(--font-mono); font-size:13px; text-decoration:none; color:var(--ink-dim); }
+  h1{ font-family:var(--font-display); font-weight:700; font-size:30px; margin:22px 0 30px; }
+  h2{ font-family:var(--font-display); font-weight:600; font-size:16.5px; margin:30px 0 8px; }
+  p{ font-size:15px; color:var(--ink-dim); margin-bottom:4px; }
+  .card{ background:var(--panel); border:1px solid var(--line-faint); padding:28px 30px; margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Zurück</a>
+  <h1>Impressum</h1>
+
+  <div class="card">
+    <h2>Angaben gemäß § 5 DDG</h2>
+    <p>Albert Hohm</p>
+    <p>Obere Kirchrainstr. 1</p>
+    <p>63853 Mömlingen</p>
+
+    <h2>Kontakt</h2>
+    <p>E-Mail: <a href="mailto:albert.hohm@online.de">albert.hohm@online.de</a></p>
+
+    <h2>Verantwortlich für den Inhalt gemäß § 18 Abs. 2 MStV</h2>
+    <p>Albert Hohm, Anschrift wie oben</p>
+
+    <h2>Hosting</h2>
+    <p>Diese Seite wird über GitHub Pages gehostet, bereitgestellt von GitHub Inc.,
+       88 Colin P Kelly Jr St, San Francisco, CA 94107, USA (ein Tochterunternehmen
+       der Microsoft Corporation). Details siehe Datenschutzerklärung.</p>
+
+    <h2>Haftungshinweis</h2>
+    <p>Das EC2-Bemessungstool ist eine kostenlose Arbeitshilfe. Es ersetzt nicht die
+       eigenverantwortliche fachliche Prüfung durch einen qualifizierten Tragwerksplaner.
+       Für die Richtigkeit der Ergebnisse wird keine Gewähr übernommen. Der Quellcode
+       wird unter der MIT-Lizenz "wie besehen", ohne jegliche Gewährleistung
+       bereitgestellt.</p>
+  </div>
+</div>
+</body>
+</html>
