@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EC2-Bemessungstool — Endauflager · Hochhängebewehrung · Bewehrungswahl</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F5EF;
+    --panel:#FFFFFF;
+    --ink:#1E1E1E;
+    --ink-dim:#66645C;
+    --line-faint: rgba(30,30,30,0.14);
+    --grid-fine: rgba(30,30,30,0.06);
+    --grid-bold: rgba(30,30,30,0.16);
+    --red:#C23B2E;
+    --red-dim:#9c2f24;
+    --font: 'IBM Plex Sans', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:
+      linear-gradient(var(--grid-fine) 1px, transparent 1px) 0 0/8px 8px,
+      linear-gradient(90deg, var(--grid-fine) 1px, transparent 1px) 0 0/8px 8px,
+      linear-gradient(var(--grid-bold) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--grid-bold) 1px, transparent 1px) 0 0/40px 40px,
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--font);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  img,svg{display:block; max-width:100%;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 28px;}
+
+  /* leere Zone oberhalb der Grafik */
+  header.top{
+    height:60px; position:sticky; top:0; z-index:50;
+    background:rgba(247,245,239,0.88); backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line-faint);
+  }
+
+  .btn{
+    font-family:var(--font); font-size:13px; font-weight:600;
+    padding:9px 16px; border:1px solid var(--red); color:var(--red);
+    text-decoration:none; white-space:nowrap; transition:background .15s, color .15s;
+  }
+  .btn:hover{ background:var(--red); color:#fff; }
+  .btn.solid{ background:var(--red); color:#fff; }
+  .btn.solid:hover{ background:var(--red-dim); border-color:var(--red-dim); }
+
+  /* ---------- Hero (Fotobanner) ---------- */
+  .hero{
+    position:relative; min-height:440px; overflow:hidden;
+    border-bottom:1px solid var(--line-faint);
+    display:flex; align-items:center;
+  }
+  .hero-photo{
+    position:absolute; inset:0;
+    background:url('hero-photo.jpg') center 38% / cover no-repeat;
+  }
+  .hero-fade-h{
+    position:absolute; inset:0;
+    background:linear-gradient(90deg,
+      rgba(247,245,239,0.02) 0%,
+      rgba(247,245,239,0.30) 42%,
+      rgba(247,245,239,0.80) 60%,
+      rgba(247,245,239,0.94) 75%);
+  }
+  .hero-fade-b{
+    position:absolute; inset:0;
+    background:linear-gradient(to bottom, transparent 55%, var(--bg) 100%);
+  }
+  .hero-content{
+    position:relative; z-index:2; width:100%;
+    max-width:1120px; margin:0 auto; padding:40px 28px 56px;
+    display:flex; justify-content:flex-end;
+  }
+  .hero-text{ max-width:460px; }
+  .badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--font); font-size:11.5px; font-weight:600; letter-spacing:0.04em;
+    color:var(--red); border:1px solid var(--red); padding:5px 11px;
+    margin-top:20px;
+  }
+  .badge::before{ content:"●"; font-size:8px; }
+  @media (max-width:760px){
+    .hero{ min-height:480px; }
+    .hero-fade-h{ background:linear-gradient(180deg, rgba(247,245,239,0.15) 0%, rgba(247,245,239,0.92) 55%); }
+    .hero-content{ justify-content:flex-start; padding-top:170px; }
+    .hero-text{ max-width:100%; }
+  }
+
+  .eyebrow{
+    font-family:var(--font); font-size:12.5px; font-weight:600; color:var(--red);
+    letter-spacing:0.1em; text-transform:uppercase;
+    display:flex; align-items:center; gap:10px; margin-bottom:20px;
+  }
+  .eyebrow::before{ content:""; width:22px; height:1px; background:var(--red); }
+  h1{
+    font-family:var(--font); font-weight:700;
+    font-size:clamp(30px, 3.6vw, 42px); line-height:1.1; letter-spacing:-0.01em;
+  }
+  .hero-sub{ margin-top:18px; font-size:16px; color:var(--ink-dim); }
+  .hero-sub strong{ color:var(--ink); font-weight:700; }
+  .hero-cta{ display:flex; gap:14px; margin-top:28px; flex-wrap:wrap; }
+
+  /* ---------- Kontakt ---------- */
+  .contact{
+    padding:40px 0; display:flex; justify-content:space-between; align-items:flex-start;
+    flex-wrap:wrap; gap:24px;
+  }
+  .contact-copy p{ font-size:15px; color:var(--ink-dim); max-width:38ch; }
+  .contact-copy h2{ font-family:var(--font); font-size:20px; font-weight:700; margin-bottom:8px; }
+  .contact-data{ font-family:var(--font); font-size:14.5px; font-weight:400; line-height:1.35; text-align:right; }
+  .contact-data a{ text-decoration:none; border-bottom:1px solid var(--line-faint); }
+  @media (max-width:640px){ .contact-data{ text-align:left; } }
+
+  footer{ border-top:1px solid var(--line-faint); padding:24px 0 30px; }
+  .footer-bottom{ display:flex; justify-content:space-between; font-family:var(--font); font-size:11.5px; color:var(--ink-dim); flex-wrap:wrap; gap:10px; }
+  .footer-bottom a{ text-decoration:none; border-bottom:1px solid var(--line-faint); }
+  .footer-links{ display:flex; gap:16px; }
+</style>
+</head>
+<body>
+
+<header class="top"></header>
+
+<main>
+  <section class="hero">
+    <div class="hero-photo"></div>
+    <div class="hero-fade-h"></div>
+    <div class="hero-fade-b"></div>
+    <div class="hero-content">
+      <div class="hero-text">
+        <div class="eyebrow">DIN EN 1992-1-1 · Eurocode</div>
+        <h1>Arbeitshilfe nach EC2, ohne Tabellenblatt-Chaos</h1>
+        <p class="hero-sub">
+          Für Praktiker wie Konstrukteure und Statiker.<br>
+          In der aktuellen Version 1.0: <strong>Bewehrungswahl, Berechnung der
+          Verankerungslänge am Endauflager und der Hochhängebewehrung
+          (Nebenträger)</strong> in einem browserbasierten Tool.<br>
+          Normkonform gerechnet, Zwischenwerte nachvollziehbar, kein Server,
+          keine Installation.
+        </p>
+        <div class="hero-cta">
+          <a href="ec2-tool.html" class="btn solid">Bei GitHub starten →</a>
+          <a href="ec2-tool.html" download class="btn">Als Download</a>
+        </div>
+        <div class="badge">Kostenlos nutzbar</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="contact" id="kontakt">
+      <div class="contact-copy">
+        <h2>Kontakt</h2>
+        <p>Fragen, Hinweise auf Normabweichungen oder Feedback zum Tool gerne direkt melden.</p>
+      </div>
+      <div class="contact-data">
+        Albert Hohm<br>
+        Obere Kirchrainstr. 1<br>
+        63853 Mömlingen<br>
+        <a href="mailto:albert.hohm@online.de">albert.hohm@online.de</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-bottom">
+      <span>EC2-BEMESSUNGSTOOL — Kein Ersatz für die prüffähige statische Berechnung</span>
+      <div class="footer-links">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="LICENSE">Lizenz</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
