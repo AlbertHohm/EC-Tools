@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datenschutz — EC2-Bemessungstool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F5EF; --panel:#FFFFFF; --ink:#1E1E1E; --ink-dim:#66645C;
+    --line-faint: rgba(30,30,30,0.14); --grid-fine: rgba(30,30,30,0.06); --grid-bold: rgba(30,30,30,0.16);
+    --red:#C23B2E;
+    --font-display:'Space Grotesk',sans-serif; --font-body:'IBM Plex Sans',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:
+      linear-gradient(var(--grid-fine) 1px, transparent 1px) 0 0/8px 8px,
+      linear-gradient(90deg, var(--grid-fine) 1px, transparent 1px) 0 0/8px 8px,
+      linear-gradient(var(--grid-bold) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--grid-bold) 1px, transparent 1px) 0 0/40px 40px,
+      var(--bg);
+    color:var(--ink); font-family:var(--font-body); line-height:1.6;
+  }
+  .wrap{max-width:720px; margin:0 auto; padding:64px 28px 100px;}
+  a{ color:var(--red); }
+  .back{ font-family:var(--font-mono); font-size:13px; text-decoration:none; color:var(--ink-dim); }
+  h1{ font-family:var(--font-display); font-weight:700; font-size:30px; margin:22px 0 30px; }
+  h2{ font-family:var(--font-display); font-weight:600; font-size:16.5px; margin:30px 0 8px; }
+  p{ font-size:15px; color:var(--ink-dim); margin-bottom:10px; }
+  .card{ background:var(--panel); border:1px solid var(--line-faint); padding:28px 30px; margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← Zurück</a>
+  <h1>Datenschutzerklärung</h1>
+
+  <div class="card">
+    <h2>1. Verantwortlicher</h2>
+    <p>Albert Hohm<br>Obere Kirchrainstr. 1<br>63853 Mömlingen<br>E-Mail: <a href="mailto:albert.hohm@online.de">albert.hohm@online.de</a></p>
+
+    <h2>2. Hosting über GitHub Pages</h2>
+    <p>Diese Website wird über GitHub Pages gehostet. Anbieter ist GitHub Inc.,
+       88 Colin P Kelly Jr St, San Francisco, CA 94107, USA, ein Tochterunternehmen
+       der Microsoft Corporation. Beim Aufruf dieser Seite verarbeitet GitHub
+       automatisch technische Zugriffsdaten (sogenannte Server-Logfiles), die Ihr
+       Browser übermittelt. Dazu gehören insbesondere:</p>
+    <p>– IP-Adresse<br>– Datum und Uhrzeit der Anfrage<br>– aufgerufene Seite/Datei<br>
+       – Browsertyp und -version, verwendetes Betriebssystem<br>– Referrer-URL</p>
+    <p>Diese Datenverarbeitung erfolgt technisch bedingt durch den Betrieb der
+       Infrastruktur und dient der Auslieferung der Seite sowie der Sicherheit und
+       Stabilität des Angebots (Art. 6 Abs. 1 lit. f DSGVO). Die Datenübermittlung
+       an GitHub/Microsoft in die USA erfolgt auf Grundlage der EU-Standardvertragsklauseln.
+       Weitere Informationen: 
+       <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a>.</p>
+    <p>Gleiches gilt beim Download der Software (z. B. über GitHub Releases): auch
+       hier erfasst GitHub automatisch die IP-Adresse und technische Zugriffsdaten.</p>
+
+    <h2>3. Google Fonts</h2>
+    <p>Diese Seite bindet Schriftarten von Google Fonts ein, die beim Seitenaufruf
+       von Servern von Google Ireland Limited (bzw. Google LLC, USA) geladen werden.
+       Dabei kann Ihre IP-Adresse an Google übertragen werden. Weitere Informationen:
+       <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google-Datenschutzerklärung</a>.</p>
+
+    <h2>4. Lokale Datenspeicherung im Tool selbst</h2>
+    <p>Das EC2-Bemessungstool speichert Projekt- und Eingabedaten ausschließlich
+       lokal im Browser (localStorage) auf Ihrem Endgerät. Es findet keine
+       Übertragung dieser Eingabedaten an einen Server statt.</p>
+
+    <h2>5. Ihre Rechte</h2>
+    <p>Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der
+       Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen die Verarbeitung
+       Sie betreffender personenbezogener Daten nach Maßgabe der Art. 15–21 DSGVO.
+       Zudem besteht ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde.</p>
+  </div>
+</div>
+</body>
+</html>
