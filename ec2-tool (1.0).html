@@ -138,16 +138,6 @@
       color: var(--text-muted);
     }
 
-    #donate-fab {
-      position: fixed; bottom: 24px; right: 24px; z-index: 900;
-      background: var(--accent); color: #0b1220; border: none; border-radius: 30px;
-      padding: 12px 20px; font-family: var(--font-s); font-weight: 700; font-size: 13px;
-      cursor: pointer; box-shadow: 0 4px 16px rgba(245,158,11,0.4);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    #donate-fab:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245,158,11,0.55); }
-    @media (max-width: 900px) { #donate-fab { bottom: 16px; right: 16px; padding: 10px 16px; font-size: 12px; } }
-
     /* Main Content Area */
     #main { 
       margin-left: var(--sidebar-w); 
@@ -209,6 +199,15 @@
     }
     input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
     select option { background-color: #0f1729; color: #ffffff; }
+
+    /* Ausnutzungsgrad: reines Textfeld ohne Spinner-Pfeile (überdeckten sonst den Wert auf Mobilgeräten) */
+    #hl-ausnutzung-anch::-webkit-inner-spin-button,
+    #hl-ausnutzung-anch::-webkit-outer-spin-button,
+    #hl-ausnutzung-lap::-webkit-inner-spin-button,
+    #hl-ausnutzung-lap::-webkit-outer-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
+    #hl-ausnutzung-anch, #hl-ausnutzung-lap { -moz-appearance: textfield; }
 
     /* Rebar Table */
     .rebar-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
@@ -295,6 +294,7 @@
 
     /* Print View Improvements */
     #print-header { display: none; }
+    #print-disclaimer-footer { display: none; }
 
     /* Persistent context bar (Projekt/Adresse/Position) shown on every page */
     #context-bar {
@@ -321,10 +321,14 @@
       #main { margin-left: 0 !important; padding: 0 !important; max-width: 100% !important; }
       /* Kleine Helferlein: reine Nachschlagetabellen, kein Ausdruck vorgesehen */
       #page-helper-anchlen, #page-helper-laplen, #page-helper-laplen-mesh, #page-helper-mandrel, #page-helper-rebar-as, #page-helper-rebar-asline, #page-helper-rebar-asw { display: none !important; }
-      #save-card-anch, #save-card-susp, #disclaimer-modal, #donate-modal, #donate-fab { display: none !important; }
+      #save-card-anch, #save-card-susp, #disclaimer-modal { display: none !important; }
       /* Betondeckung: nur die getroffene Auswahl als Text zeigen, nicht die ganze interaktive Liste */
       #hc-scenario-groups { display: none !important; }
       #hc-print-summary { display: block !important; }
+      #print-disclaimer-footer {
+        display: block !important; margin-top: 20px; padding-top: 10px;
+        border-top: 1px solid #999; font-size: 8px; line-height: 1.5; color: #444;
+      }
       
       /* Print Header visible */
       #print-header { display: block; margin-bottom: 14px; font-family: var(--font-s); }
@@ -404,6 +408,7 @@
     EC2·TOOL PRO
     <small>DIN EN 1992-1-1 · Nationaler Anhang</small>
     <small style="display:block; margin-top:2px; font-style:italic; opacity:.85;">Vom Praktiker für Praktiker</small>
+    <small style="display:block; margin-top:4px; opacity:.6; font-size:10px;">Vers. 1.0</small>
   </div>
   <div class="nav-group">
     <div class="nav-section" data-section="helferlein">
@@ -447,8 +452,11 @@
   </div>
   <div class="sidebar-footer">
     <button class="btn btn-secondary" onclick="UI.printInNewWindow()" style="width:100%; font-size:11px; padding:8px;">🖨️ Bericht drucken (neues Fenster)</button>
-    <div style="text-align:center; margin-top:10px;">
+    <div style="text-align:center; margin-top:10px; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
       <a href="#" onclick="UI.toggleDisclaimer(); return false;" style="font-size:10px; color:var(--text-muted); text-decoration:underline; cursor:pointer;">⚖️ Haftungsausschluss</a>
+      <a href="impressum.html" target="_blank" rel="noopener" style="font-size:10px; color:var(--text-muted); text-decoration:underline;">Impressum</a>
+      <a href="datenschutz.html" target="_blank" rel="noopener" style="font-size:10px; color:var(--text-muted); text-decoration:underline;">Datenschutz</a>
+      <a href="LICENZE" target="_blank" rel="noopener" style="font-size:10px; color:var(--text-muted); text-decoration:underline;">Lizenz</a>
     </div>
   </div>
 </aside>
@@ -463,23 +471,6 @@
       <p>Sämtliche Ergebnisse sind vor der praktischen Anwendung eigenständig zu verifizieren und von einer bauaufsichtlich hierzu berechtigten Person zu prüfen und freizugeben.</p>
     </div>
     <button class="btn btn-primary" onclick="UI.toggleDisclaimer()" style="margin-top:20px; width:100%;">Verstanden</button>
-  </div>
-</div>
-
-<button id="donate-fab" onclick="UI.toggleDonate()" title="Unterstütze die Weiterentwicklung">
-  💛 Unterstützen
-</button>
-
-<div id="donate-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center; padding:20px;">
-  <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; max-width:420px; padding:28px; position:relative; text-align:center;">
-    <h2 style="font-family:var(--font-d); color:var(--accent); margin:0 0 16px; font-size:18px;">💛 Unterstütze die Weiterentwicklung</h2>
-    <p style="font-size:13px; line-height:1.7; color:var(--text-secondary);">
-      Dieses Tool entsteht in der Freizeit und bleibt kostenlos nutzbar. Wenn es dir hilft und du die Weiterentwicklung unterstützen möchtest, freue ich mich über eine freiwillige Spende.
-    </p>
-    <p style="font-size:12px; color:var(--text-muted); margin-top:14px;">
-      (Spendenlink folgt in Kürze)
-    </p>
-    <button class="btn btn-primary" onclick="UI.toggleDonate()" style="margin-top:16px; width:100%;">Schließen</button>
   </div>
 </div>
 
@@ -527,7 +518,8 @@
               <label>Ausnutzung A<sub>s,erf</sub>/A<sub>s,vorh</sub> [%]</label>
               <input type="number" id="hl-ausnutzung-anch" value="100" min="10" max="100" step="5"
                 title="σ_sd = f_yd · (A_s,erf/A_s,vorh). Bei 100% = volle Ausnutzung (Regelfall, konservativ)."
-                oninput="HelperLengths.setAusnutzung(this.value)">
+                oninput="HelperLengths.setAusnutzung(this.value, 'hl-ausnutzung-anch')"
+                onblur="HelperLengths.clampAusnutzung(this.value, 'hl-ausnutzung-anch')">
             </div>
           </div>
           <div style="width:1px; align-self:stretch; background:var(--border);"></div>
@@ -573,7 +565,8 @@
               <label>Ausnutzung A<sub>s,erf</sub>/A<sub>s,vorh</sub> [%]</label>
               <input type="number" id="hl-ausnutzung-lap" value="100" min="10" max="100" step="5"
                 title="σ_sd = f_yd · (A_s,erf/A_s,vorh). Bei 100% = volle Ausnutzung (Regelfall, konservativ)."
-                oninput="HelperLengths.setAusnutzung(this.value)">
+                oninput="HelperLengths.setAusnutzung(this.value, 'hl-ausnutzung-lap')"
+                onblur="HelperLengths.clampAusnutzung(this.value, 'hl-ausnutzung-lap')">
             </div>
           </div>
           <div style="width:1px; align-self:stretch; background:var(--border);"></div>
@@ -1106,6 +1099,10 @@
     <button class="btn btn-primary" onclick="Logic.calcSuspension()">🔍 Nachweis nach EC2 9.2.5 führen</button>
     <div id="res-susp"></div>
   </section>
+
+  <div id="print-disclaimer-footer">
+    <b>Haftungsausschluss:</b> Dieses Tool dient als Hilfsmittel zur überschlägigen Ermittlung und ersetzt nicht die eigenverantwortliche fachliche Prüfung durch einen qualifizierten Tragwerksplaner oder Prüfingenieur. Für Richtigkeit, Vollständigkeit und Aktualität der Berechnungen und Normwerte wird keine Gewähr übernommen; die Nutzung erfolgt auf eigene Verantwortung. Sämtliche Ergebnisse sind vor der praktischen Anwendung eigenständig zu verifizieren und von einer bauaufsichtlich hierzu berechtigten Person zu prüfen und freizugeben.
+  </div>
 </main>
 
 <script>
@@ -1230,13 +1227,6 @@
 
     toggleDisclaimer() {
       const modal = document.getElementById('disclaimer-modal');
-      if (!modal) return;
-      const isOpen = modal.style.display === 'flex';
-      modal.style.display = isOpen ? 'none' : 'flex';
-    },
-
-    toggleDonate() {
-      const modal = document.getElementById('donate-modal');
       if (!modal) return;
       const isOpen = modal.style.display === 'flex';
       modal.style.display = isOpen ? 'none' : 'flex';
@@ -1769,7 +1759,25 @@
       return (d / 4) * (sigmaSd / this.fbd(grade, bond, d)); // mm
     },
 
-    setAusnutzung(val) {
+    // Während des Tippens: NICHT ins gerade bearbeitete Feld zurückschreiben (sonst wird
+    // jeder Löschversuch/jede Änderung durch das programmatische Zurücksetzen sofort
+    // rückgängig gemacht — genau das führte zum "erste Ziffer nicht änderbar"-Fehler).
+    // Nur das jeweils ANDERE Feld (Verankerung <-> Übergreifung) wird live synchron gehalten.
+    setAusnutzung(val, sourceId) {
+      let v = parseFloat(val);
+      if (isNaN(v)) v = 0;
+      this.state.ausnutzung = Math.max(10, Math.min(100, v || 100));
+      ['hl-ausnutzung-anch', 'hl-ausnutzung-lap'].forEach(id => {
+        if (id === sourceId) return;
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      });
+      this.render();
+    },
+
+    // Beim Verlassen des Feldes (blur): jetzt sauber auf 10–100 begrenzen und beide
+    // Felder synchron auf den bereinigten Wert setzen.
+    clampAusnutzung(val, sourceId) {
       let v = parseFloat(val);
       if (isNaN(v)) v = 100;
       v = Math.max(10, Math.min(100, v));
