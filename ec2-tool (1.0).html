@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EC2·TOOL PRO – Engineering Suite</title>
+  <title>EC2·TOOL PRO</title>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -92,7 +92,7 @@
       margin-top: 2px;
     }
 
-    .nav-group { padding: 16px 0; flex: 1; }
+    .nav-group { padding: 16px 0; flex: 1; overflow-y: auto; min-height: 0; }
     .nav-section { }
     .nav-label {
       font-size: 13px; text-transform: uppercase; color: #ff5c5c; padding: 14px 20px 8px;
@@ -320,7 +320,7 @@
       #sidebar, #mobile-header, .btn, .btn-add, .norm-hint, #context-bar { display: none !important; }
       #main { margin-left: 0 !important; padding: 0 !important; max-width: 100% !important; }
       /* Kleine Helferlein: reine Nachschlagetabellen, kein Ausdruck vorgesehen */
-      #page-helper-anchlen, #page-helper-laplen, #page-helper-laplen-mesh, #page-helper-rebar-as, #page-helper-rebar-asline, #page-helper-rebar-asw { display: none !important; }
+      #page-helper-anchlen, #page-helper-laplen, #page-helper-laplen-mesh, #page-helper-mandrel, #page-helper-rebar-as, #page-helper-rebar-asline, #page-helper-rebar-asw { display: none !important; }
       #save-card-anch, #save-card-susp, #disclaimer-modal, #donate-modal, #donate-fab { display: none !important; }
       /* Betondeckung: nur die getroffene Auswahl als Text zeigen, nicht die ganze interaktive Liste */
       #hc-scenario-groups { display: none !important; }
@@ -402,7 +402,7 @@
 <aside id="sidebar">
   <div class="logo-wrap">
     EC2·TOOL PRO
-    <small>Engineering Suite · DIN EN 1992-1-1</small>
+    <small>DIN EN 1992-1-1 · Nationaler Anhang</small>
     <small style="display:block; margin-top:2px; font-style:italic; opacity:.85;">Vom Praktiker für Praktiker</small>
   </div>
   <div class="nav-group">
@@ -422,6 +422,7 @@
           </div>
         </div>
         <div class="nav-item" data-page="helper-cover">🛡️ Betondeckung (Expositionsklasse)</div>
+        <div class="nav-item" data-page="helper-mandrel">🌀 Biegerollendurchmesser</div>
         <div class="nav-subsection" data-section="bewehrungswahl">
           <div class="nav-sublabel" onclick="UI.toggleNavSection(this)">
             <span>Bewehrungswahl</span><span class="nav-chevron">▾</span>
@@ -445,7 +446,7 @@
     </div>
   </div>
   <div class="sidebar-footer">
-    <button class="btn btn-secondary" onclick="window.print()" style="width:100%; font-size:11px; padding:8px;">🖨️ Bericht drucken</button>
+    <button class="btn btn-secondary" onclick="UI.printInNewWindow()" style="width:100%; font-size:11px; padding:8px;">🖨️ Bericht drucken (neues Fenster)</button>
     <div style="text-align:center; margin-top:10px;">
       <a href="#" onclick="UI.toggleDisclaimer(); return false;" style="font-size:10px; color:var(--text-muted); text-decoration:underline; cursor:pointer;">⚖️ Haftungsausschluss</a>
     </div>
@@ -669,6 +670,52 @@
         <div class="norm-hint" style="margin-top:16px;">
           ℹ️ <b>Standardfall</b> nach dt. NA: Anforderungsklasse S3 (50 Jahre Nutzungsdauer, allgemeiner Hochbau, Regelausführung nach DIN EN 13670/DIN 1045-3). Δc<sub>dev</sub>=10mm (Standard-Vorhaltemaß). Für Sonderfälle (100 Jahre Nutzungsdauer, besondere Qualitätssicherung, Platten-Sonderregel etc.) ist eine gesonderte Prüfung nach Tabelle 4.3DE erforderlich — hier nicht abgebildet. XF/XA/XM wirken sich auf die Betonzusammensetzung (Güte, w/z-Wert, Luftgehalt) aus, nicht auf c<sub>nom</sub> — hier nur zur vollständigen Dokumentation erfasst.
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-helper-mandrel" class="page">
+    <div class="card">
+      <div class="card-header"><h2>🌀 Mindest-Biegerollendurchmesser (DIN EN 1992-1-1/NA, Tab. NA.8.1a)</h2></div>
+      <div class="card-body">
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">ART DER BIEGUNG</div>
+        <div id="hm-mandrel-type-buttons" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:22px;"></div>
+
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">BETONART</div>
+        <div id="hm-mandrel-concrete-buttons" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:22px;"></div>
+
+        <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">STABDURCHMESSER</div>
+        <div id="hm-mandrel-d-buttons" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:22px;"></div>
+
+        <div id="hm-mandrel-cover-wrap" style="display:none;">
+          <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">BETONDECKUNG & STABABSTAND RECHTWINKLIG ZUR BIEGEEBENE</div>
+          <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:10px;">
+            <div class="form-group" style="max-width:150px;">
+              <label>Betondeckung c<sub>d</sub> [mm]</label>
+              <input type="number" id="hm-mandrel-cover-input" value="75" min="10" step="5">
+            </div>
+            <div class="form-group" style="max-width:150px;">
+              <label>Stababstand a [mm]</label>
+              <input type="number" id="hm-mandrel-spacing-input" value="60" min="10" step="5">
+            </div>
+            <div class="form-group" style="max-width:150px;">
+              <label>Größtkorn d<sub>g</sub> [mm]</label>
+              <select id="hm-mandrel-dg-input">
+                <option value="8">8 mm</option>
+                <option value="16" selected>16 mm</option>
+                <option value="32">32 mm</option>
+                <option value="63">63 mm</option>
+              </select>
+            </div>
+          </div>
+          <div id="hm-mandrel-spacing-warning" style="display:none; text-align:center; font-size:11.5px; color:var(--error); margin-bottom:12px; font-weight:600;"></div>
+        </div>
+
+        <table class="detail-table" style="width:auto; max-width:460px; margin:0 auto;" id="hm-mandrel-table"></table>
+
+        <div id="hm-mandrel-graphic"></div>
+
+        <div class="norm-hint" style="margin-top:16px;" id="hm-mandrel-hint"></div>
       </div>
     </div>
   </section>
@@ -1041,10 +1088,10 @@
           <div class="form-group">
             <label>Durchmesser Stegbewehrung Ø<sub>h</sub> [mm]</label>
             <select id="d_horiz">
-              <option value="8">8 mm</option>
               <option value="10" selected>10 mm</option>
               <option value="12">12 mm</option>
               <option value="14">14 mm</option>
+              <option value="16">16 mm</option>
             </select>
           </div>
         </div>
@@ -1089,6 +1136,7 @@
       HelperCover.init();
       HelperRebar.init();
       HelperMesh.init();
+      HelperMandrel.init();
       this.restoreNavSections();
       this.toggleAlpha5Field();
       this.updateThetaLabel();
@@ -1099,32 +1147,9 @@
         item.addEventListener('click', () => this.showPage(item.dataset.page));
       });
 
-      // Prepare UI for printing
-      window.addEventListener('beforeprint', () => {
-        document.querySelectorAll('details.calc-steps').forEach(d => d.setAttribute('open', ''));
-        document.getElementById('print-project').innerText = document.getElementById('project_name').value || '-';
-        document.getElementById('print-position').innerText = document.getElementById('position_current').value || '-';
-        document.getElementById('print-date').innerText = new Date().toLocaleDateString('de-DE');
-
-        // Grafiken für den Druck: den leeren Bereich oberhalb des Titels aus dem viewBox
-        // herausschneiden (statt per CSS zu tricksen — direkt am Attribut ist eindeutig
-        // und kollidiert nicht mit anderen Größenregeln).
-        document.querySelectorAll('svg[data-crop-top]').forEach(svg => {
-          const crop = parseFloat(svg.getAttribute('data-crop-top')) || 0;
-          if (crop <= 0) return;
-          const vb = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
-          if (vb.length !== 4) return;
-          svg.setAttribute('data-orig-viewbox', svg.getAttribute('viewBox'));
-          svg.setAttribute('viewBox', `${vb[0]} ${vb[1] + crop} ${vb[2]} ${vb[3] - crop}`);
-        });
-      });
-
-      window.addEventListener('afterprint', () => {
-        document.querySelectorAll('svg[data-orig-viewbox]').forEach(svg => {
-          svg.setAttribute('viewBox', svg.getAttribute('data-orig-viewbox'));
-          svg.removeAttribute('data-orig-viewbox');
-        });
-      });
+      // Prepare UI for printing (Strg+P / Browser-Druckmenü direkt auf dem Hauptfenster)
+      window.addEventListener('beforeprint', () => this.preparePrint());
+      window.addEventListener('afterprint', () => this.restoreAfterPrint());
 
       const updateIndirectCheck = () => {
         const h1 = parseFloat(document.getElementById('h_susp').value) || 60;
@@ -1160,7 +1185,7 @@
       // Kleinen Helferlein (die sind projekt-/positionsunabhängige Nachschlagewerkzeuge).
       const contextBar = document.getElementById('context-bar');
       if (contextBar) {
-        const isHelper = pageId === 'helper-anchlen' || pageId === 'helper-laplen' || pageId === 'helper-laplen-mesh' || pageId === 'helper-cover' || pageId === 'helper-rebar-as' || pageId === 'helper-rebar-asline' || pageId === 'helper-rebar-asw';
+        const isHelper = pageId === 'helper-anchlen' || pageId === 'helper-laplen' || pageId === 'helper-laplen-mesh' || pageId === 'helper-cover' || pageId === 'helper-mandrel' || pageId === 'helper-rebar-as' || pageId === 'helper-rebar-asline' || pageId === 'helper-rebar-asw';
         contextBar.style.display = isHelper ? 'none' : 'flex';
       }
 
@@ -1215,6 +1240,54 @@
       if (!modal) return;
       const isOpen = modal.style.display === 'flex';
       modal.style.display = isOpen ? 'none' : 'flex';
+    },
+
+    // Bereitet den Ausdruck vor (Rechenweg aufklappen, Druckkopf befüllen, SVG-viewBox zuschneiden)
+    // — dieselbe Logik wird sowohl beim normalen Strg+P (beforeprint-Event) als auch beim
+    // "In neuem Fenster öffnen"-Button verwendet, um Doppelpflege zu vermeiden.
+    preparePrint() {
+      document.querySelectorAll('details.calc-steps').forEach(d => d.setAttribute('open', ''));
+      document.getElementById('print-project').innerText = document.getElementById('project_name').value || '-';
+      document.getElementById('print-position').innerText = document.getElementById('position_current').value || '-';
+      document.getElementById('print-date').innerText = new Date().toLocaleDateString('de-DE');
+      document.querySelectorAll('svg[data-crop-top]').forEach(svg => {
+        const crop = parseFloat(svg.getAttribute('data-crop-top')) || 0;
+        if (crop <= 0) return;
+        const vb = (svg.getAttribute('viewBox') || '').split(/\s+/).map(Number);
+        if (vb.length !== 4) return;
+        svg.setAttribute('data-orig-viewbox', svg.getAttribute('viewBox'));
+        svg.setAttribute('viewBox', `${vb[0]} ${vb[1] + crop} ${vb[2]} ${vb[3] - crop}`);
+      });
+    },
+
+    restoreAfterPrint() {
+      document.querySelectorAll('svg[data-orig-viewbox]').forEach(svg => {
+        svg.setAttribute('viewBox', svg.getAttribute('data-orig-viewbox'));
+        svg.removeAttribute('data-orig-viewbox');
+      });
+    },
+
+    printInNewWindow() {
+      this.preparePrint();
+      const styleHTML = document.querySelector('style').outerHTML;
+      const mainHTML = document.getElementById('main').outerHTML;
+      this.restoreAfterPrint();
+
+      const printWindow = window.open('', '_blank', 'width=1000,height=1300');
+      if (!printWindow) {
+        alert('Das neue Fenster wurde vom Browser blockiert. Bitte Popup-Blocker für diese Seite deaktivieren und erneut versuchen.');
+        return;
+      }
+      printWindow.document.open();
+      printWindow.document.write(`<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>EC2·TOOL PRO — Druckansicht</title>${styleHTML}</head><body>${mainHTML}</body></html>`);
+      printWindow.document.close();
+
+      const triggerPrint = () => { printWindow.focus(); printWindow.print(); };
+      if (printWindow.document.readyState === 'complete') {
+        setTimeout(triggerPrint, 200);
+      } else {
+        printWindow.addEventListener('load', () => setTimeout(triggerPrint, 200));
+      }
     },
 
     toggleAlpha5Field() {
@@ -1303,9 +1376,6 @@
     let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" data-crop-top="36"
         style="width:100%;border-radius:8px;background:#0b1220;margin-top:16px;">
       <defs>
-        <pattern id="hs" patternUnits="userSpaceOnUse" width="8" height="8" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="8" stroke="#253d60" stroke-width="1.5"/>
-        </pattern>
         <marker id="mGold"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#f59e0b"/></marker>
         <marker id="mGoldL" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto"><path d="M7,0 L7,7 L0,3.5z" fill="#f59e0b"/></marker>
         <marker id="mOk"    markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#10b981"/></marker>
@@ -1314,13 +1384,11 @@
 
       <!-- Trägerkörper -->
       <rect x="${beamX}" y="${topY}" width="${supFaceX - beamX}" height="${beamH}" fill="#0f1729" stroke="#2d4a6e" stroke-width="1.5"/>
-      <!-- Auflagerblock -->
-      <rect x="${supFaceX}" y="${topY}" width="70" height="${beamH}" fill="url(#hs)" stroke="#2d4a6e" stroke-width="1.5"/>
       <!-- Text Betondeckung -->
       <text x="${beamX+14}" y="${topY+18}" fill="#435872" font-size="9" font-family="JetBrains Mono,monospace">c_nom=${cnom_mm}mm</text>
       <!-- Auflagerkante -->
-      <line x1="${supFaceX}" y1="${topY-12}" x2="${supFaceX}" y2="${topY+beamH+12}" stroke="#f59e0b" stroke-dasharray="6,4" stroke-width="1.5"/>
-      <text x="${supFaceX+6}" y="${topY-3}" fill="#f59e0b" font-size="10" font-family="DM Sans,sans-serif" font-weight="600">Auflagerkante</text>
+      <line x1="${supFaceX}" y1="${topY-12}" x2="${supFaceX}" y2="${topY+beamH+12}" stroke="#f59e0b" stroke-width="2.5"/>
+      <text x="${supFaceX+16}" y="${topY+beamH/2}" fill="#f59e0b" font-size="10" font-family="DM Sans,sans-serif" font-weight="600" text-anchor="middle" transform="rotate(-90 ${supFaceX+16} ${topY+beamH/2})">Auflagerkante</text>
 
       <text class="svg-title" x="${W-12}" y="20" fill="#f59e0b" font-size="12" font-weight="bold" text-anchor="end" font-family="Oswald,sans-serif">SCHNITT ENDAUFLAGER · EC2 8.4</text>
       <line x1="20" y1="34" x2="${W-20}" y2="34" stroke="#253d60" stroke-width="1"/>`;
@@ -1373,7 +1441,7 @@
   }
 
   function drawSuspensionSVG(p) {
-    const W = 880, H = 580;
+    const W = 880, H = 615;
     const CX = W / 2, CY = H / 2 + 10;
 
     const xAusg = p.h2 / 3;
@@ -1403,7 +1471,7 @@
     let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" data-crop-top="${Math.max(0, ntTop - 45).toFixed(0)}" style="width:100%;border-radius:8px;background:#0b1220;margin-top:16px;">
       <defs>
         <pattern id="hkz" patternUnits="userSpaceOnUse" width="7" height="7" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="7" stroke="#f59e0b" stroke-width="1.2"/>
+          <line x1="0" y1="0" x2="0" y2="7" stroke="#64748b" stroke-width="1.2"/>
         </pattern>
         <marker id="aBlue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#60a5fa"/></marker>
         <marker id="aCyan" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#06b6d4"/></marker>
@@ -1413,7 +1481,7 @@
       
       <!-- Hauptträger -->
       <rect x="${htLeft}" y="${htTop}" width="${htRight-htLeft}" height="${b1px}" fill="#0f1729" stroke="#2d4a6e" stroke-width="1.5"/>
-      <text x="${htLeft+12}" y="${htTop+16}" fill="#536b8c" font-size="10" font-family="JetBrains Mono,monospace">Hauptträger B₁=${p.b1}cm / H₁=${p.h1}cm</text>
+      <text x="${htLeft-12}" y="${htTop+b1px/2}" fill="#536b8c" font-size="10" font-family="JetBrains Mono,monospace" text-anchor="middle" transform="rotate(-90 ${htLeft-12} ${htTop+b1px/2})">Hauptträger B₁=${p.b1}cm / H₁=${p.h1}cm</text>
 
       <!-- Nebenträger -->
       <rect x="${ntLeft}" y="${ntTop}" width="${b2px}" height="${ntBot-ntTop}" fill="#111d30" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="6,4"/>
@@ -1424,7 +1492,7 @@
       <rect x="${extR.x}" y="${extR.y}" width="${extR.w}" height="${extR.h}" fill="${hasExt?'rgba(245,158,11,0.08)':'rgba(16,185,129,0.05)'}" stroke="${hasExt?'#f59e0b':'#10b981'}" stroke-width="1.2" stroke-dasharray="4,4"/>
 
       <!-- Kreuzungsbereich -->
-      <rect x="${ntLeft}" y="${htTop}" width="${b2px}" height="${b1px}" fill="url(#hkz)" fill-opacity="0.3" stroke="#f59e0b" stroke-width="2"/>
+      <rect x="${ntLeft}" y="${htTop}" width="${b2px}" height="${b1px}" fill="url(#hkz)" fill-opacity="0.3" stroke="#64748b" stroke-width="2"/>
 
       <!-- Bügel im Kreuzungsbereich (n_KZ) -->
       ${Array.from({length: p.nKZ}).map((_, i) => {
@@ -1489,15 +1557,22 @@
       <text x="${extL.x + xAusgPx/2}" y="${htBot+32}" fill="#8fa3c0" font-size="9" text-anchor="middle" font-family="JetBrains Mono,monospace">h₂/3=${xAusg.toFixed(1)}cm</text>
 
       <!-- Legend -->
-      <g transform="translate(20, ${H - 45})">
+      <g transform="translate(20, ${H - 70})">
         <rect x="0" y="0" width="12" height="12" fill="#f59e0b" rx="2"/>
         <text x="18" y="10" fill="#8fa3c0" font-size="10" font-family="DM Sans,sans-serif">Bügel im Kreuzungsbereich (n_KZ)</text>
-        
+        <text x="18" y="26" fill="#e8edf5" font-size="10" font-weight="bold" font-family="JetBrains Mono,monospace">${p.nKZ} × Ø${p.dSusp} (${p.legs}-schn.)</text>
+
+        ${hasExt ? `
         <rect x="220" y="0" width="12" height="12" fill="#10b981" rx="2"/>
         <text x="238" y="10" fill="#8fa3c0" font-size="10" font-family="DM Sans,sans-serif">Ausgelagerte Bügel in Auslagerungszone</text>
+        <text x="238" y="26" fill="#e8edf5" font-size="10" font-weight="bold" font-family="JetBrains Mono,monospace">${2 * p.nAusgProSeite} × Ø${p.dSusp} (${p.legs}-schn.)</text>` : ''}
 
+        ${hasExt ? `
         <rect x="480" y="0" width="12" height="12" fill="#06b6d4" rx="2"/>
         <text x="498" y="10" fill="#8fa3c0" font-size="10" font-family="DM Sans,sans-serif">Stegbewehrung Hauptträger (horizontal)</text>
+        <text x="498" y="26" fill="#e8edf5" font-size="10" font-weight="bold" font-family="JetBrains Mono,monospace">je Seite ${p.nHorizSeite} × Ø${p.dHoriz} (gesamt ${p.nHoriz})</text>
+        <text x="498" y="40" fill="#8fa3c0" font-size="9" font-family="JetBrains Mono,monospace">L ≥ ${p.LSpanHoriz.toFixed(0)} + 2·${p.lbdHoriz.toFixed(0)} = ${p.LGesamtHoriz.toFixed(0)} cm (mäß. Verbund)</text>
+        <text x="498" y="53" fill="#8fa3c0" font-size="9" font-family="JetBrains Mono,monospace">L ≥ ${p.LSpanHoriz.toFixed(0)} + 2·${p.lbdHorizGut.toFixed(0)} = ${p.LGesamtHorizGut.toFixed(0)} cm (guter Verbund)</text>` : ''}
       </g>
     </svg>`;
 
@@ -1685,9 +1760,12 @@
       return 2.25 * bond * eta2 * fctd;
     },
 
-    lbRqd(grade, bond, d) {
-      // σ_sd = f_yd · (A_s,erf/A_s,vorh) — EC2 8.4.3; bei 100% Ausnutzung = volle Streckgrenze
-      const sigmaSd = this.fyd * (this.state.ausnutzung / 100);
+    lbRqd(grade, bond, d, ausnutzung = 100) {
+      // σ_sd = f_yd · (A_s,erf/A_s,vorh) — EC2 8.4.3; bei 100% Ausnutzung = volle Streckgrenze.
+      // Ausnutzung ist ein expliziter Parameter (nicht aus this.state gelesen!), damit andere
+      // Module (z.B. calcSuspension) diese Funktion mit einem eigenen, vom Rundstahl-Helferlein
+      // unabhängigen Wert aufrufen können, ohne versehentlich dessen aktuellen UI-Zustand zu erben.
+      const sigmaSd = this.fyd * (ausnutzung / 100);
       return (d / 4) * (sigmaSd / this.fbd(grade, bond, d)); // mm
     },
 
@@ -1779,7 +1857,7 @@
 
       const anchTable = document.getElementById('hl-anchorage-table');
       if (anchTable) {
-        const lbRqd = this.lbRqd(grade, bond, d);
+        const lbRqd = this.lbRqd(grade, bond, d, this.state.ausnutzung);
         const lbMinFactor = druckzone ? 0.6 : 0.3;
         const lbMin = Math.max(lbMinFactor * lbRqd, 10 * d, 100);
         const lbdStraight = Math.max(1.0 * lbRqd, lbMin) / 10;
@@ -1802,7 +1880,7 @@
 
       const lapTable = document.getElementById('hl-lap-table');
       if (lapTable) {
-        const lbRqd = this.lbRqd(grade, bond, d);
+        const lbRqd = this.lbRqd(grade, bond, d, this.state.ausnutzung);
         const l0MinFactor = druckzone ? 0.6 : 0.3;
         const l0 = a6 => {
           const l0min = Math.max(l0MinFactor * a6 * lbRqd, 15 * d, 200);
@@ -2022,6 +2100,195 @@
       if (!el) return;
       el.value = cnom;
       UI.showPage(target === 'anch' ? 'anchorage' : 'suspension');
+    }
+  };
+
+  const HelperMandrel = {
+    diameters: [8, 10, 12, 14, 16, 20, 25, 28, 32, 40],
+    state: { type: 'buegel', d: 16, concrete: 'normal' },
+
+    // Stützstellen aus Tab. NA.8.1a für Schrägstäbe/andere gebogene Stäbe.
+    // "Zwischenwerte dürfen linear interpoliert werden" (ISB Arbeitsblatt 8) — deshalb hier
+    // Zahlenfelder statt fester Stufen, mit linearer Interpolation zwischen den Stützstellen.
+    interpolate(value, xGood, fGood, xMid, fMid, fWorst) {
+      if (value >= xGood) return fGood;
+      if (value <= xMid) {
+        const slope = (fMid - fGood) / (xMid - xGood);
+        const extrapolated = fMid + (value - xMid) * slope;
+        return Math.min(fWorst, Math.max(fMid, extrapolated));
+      }
+      const t = (value - xMid) / (xGood - xMid);
+      return fMid + t * (fGood - fMid);
+    },
+
+    init() {
+      const typeWrap = document.getElementById('hm-mandrel-type-buttons');
+      if (typeWrap) {
+        typeWrap.innerHTML = `
+          <button class="chip active" data-type="buegel">Haken / Winkelhaken / Schlaufen / Bügel</button>
+          <button class="chip" data-type="schraeg">Schrägstäbe / andere gebogene Stäbe</button>`;
+        typeWrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+          this.state.type = btn.dataset.type;
+          typeWrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+          document.getElementById('hm-mandrel-cover-wrap').style.display = this.state.type === 'schraeg' ? 'block' : 'none';
+          this.render();
+        }));
+      }
+
+      const concreteWrap = document.getElementById('hm-mandrel-concrete-buttons');
+      if (concreteWrap) {
+        concreteWrap.innerHTML = `
+          <button class="chip active" data-concrete="normal">Normalbeton</button>
+          <button class="chip" data-concrete="leicht">Leichtbeton (×1,5)</button>`;
+        concreteWrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+          this.state.concrete = btn.dataset.concrete;
+          concreteWrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+          this.render();
+        }));
+      }
+
+      const dWrap = document.getElementById('hm-mandrel-d-buttons');
+      if (dWrap) {
+        dWrap.innerHTML = this.diameters.map(d =>
+          `<button class="chip${d === this.state.d ? ' active' : ''}" data-d="${d}">Ø${d}</button>`
+        ).join('');
+        dWrap.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+          this.state.d = parseInt(btn.dataset.d);
+          dWrap.querySelectorAll('.chip').forEach(b => b.classList.toggle('active', b === btn));
+          this.render();
+        }));
+      }
+
+      const coverInput = document.getElementById('hm-mandrel-cover-input');
+      const spacingInput = document.getElementById('hm-mandrel-spacing-input');
+      const dgInput = document.getElementById('hm-mandrel-dg-input');
+      if (coverInput) coverInput.addEventListener('input', () => this.render());
+      if (spacingInput) spacingInput.addEventListener('input', () => this.render());
+      if (dgInput) dgInput.addEventListener('change', () => this.render());
+
+      this.render();
+    },
+
+    render() {
+      const table = document.getElementById('hm-mandrel-table');
+      const hint = document.getElementById('hm-mandrel-hint');
+      if (!table) return;
+      const d = this.state.d;
+      const isBuegel = this.state.type === 'buegel';
+
+      let factor, rowLabel, cdVal = null, aVal = null, factorCover = null, factorSpacing = null;
+      if (isBuegel) {
+        factor = d < 20 ? 4 : 7;
+        rowLabel = 'Haken, Winkelhaken, Schlaufen, Bügel';
+      } else {
+        cdVal = parseFloat(document.getElementById('hm-mandrel-cover-input')?.value) || 0;
+        aVal  = parseFloat(document.getElementById('hm-mandrel-spacing-input')?.value) || 0;
+        const aInD = aVal / d; // Abstand als Vielfaches von Ø, für den Vergleich mit 7·Ø / 3·Ø
+
+        factorCover   = this.interpolate(cdVal, 100, 10, 50, 15, 20);
+        factorSpacing = this.interpolate(aInD, 7, 10, 3, 15, 20);
+        factor = Math.max(factorCover, factorSpacing); // maßgebend ist der ungünstigere Wert
+        rowLabel = 'Schrägstäbe / andere gebogene Stäbe';
+
+        // Mindestabstand nach EC2 8.2(2) / NDP: s_min = max(k1·Ø; dg+k2; 20mm), k1=1, k2=5mm (dt. NA)
+        const dg = parseFloat(document.getElementById('hm-mandrel-dg-input')?.value) || 16;
+        const sMin = Math.max(1 * d, dg + 5, 20);
+        const warnEl = document.getElementById('hm-mandrel-spacing-warning');
+        if (warnEl) {
+          if (aVal < sMin) {
+            warnEl.style.display = 'block';
+            warnEl.innerHTML = `⚠️ Eingegebener Abstand (${aVal}mm) unterschreitet den Mindestabstand nach EC2 8.2(2): s<sub>min</sub> = max(1·Ø=${d}mm; d<sub>g</sub>+5mm=${(dg+5)}mm; 20mm) = <b>${sMin}mm</b>`;
+          } else {
+            warnEl.style.display = 'none';
+          }
+        }
+      }
+      const isLeicht = this.state.concrete === 'leicht';
+      const factorEff = isLeicht ? factor * 1.5 : factor;
+      const dMin = factorEff * d;
+
+      table.innerHTML = `
+        <tbody>
+          <tr><td>Art</td><td><b>${rowLabel}</b></td></tr>
+          <tr><td>Betonart</td><td><b>${isLeicht ? 'Leichtbeton' : 'Normalbeton'}</b></td></tr>
+          <tr><td>Stabdurchmesser Ø</td><td><b>${d} mm</b></td></tr>
+          ${!isBuegel ? `
+          <tr><td>Faktor aus Betondeckung (${cdVal}mm)</td><td>${factorCover.toFixed(1)} · Ø</td></tr>
+          <tr><td>Faktor aus Stababstand (${aVal}mm = ${(aVal/d).toFixed(1)}·Ø)</td><td>${factorSpacing.toFixed(1)} · Ø</td></tr>` : ''}
+          <tr><td>Maßgebender Faktor</td><td><b>${factorEff.toFixed(1)}${isLeicht ? ' (' + factor.toFixed(1) + '·1,5)' : ''} · Ø</b></td></tr>
+          <tr style="border-top:1px solid var(--border);"><td><b>Mindest-Biegerollendurchmesser D<sub>min</sub></b></td><td><b style="font-size:16px;color:var(--accent);">${dMin.toFixed(0)} mm</b></td></tr>
+        </tbody>`;
+
+      const gfx = document.getElementById('hm-mandrel-graphic');
+      if (gfx) {
+        gfx.innerHTML = isBuegel
+          ? this.drawBuegelGraphic(d, dMin)
+          : this.drawSchraegGraphic(d, dMin, cdVal, aVal);
+      }
+
+      if (hint) {
+        hint.innerHTML = isBuegel
+          ? `ℹ️ Gilt für ungeschweißte Bewehrung, einmaliges Biegen (Tab. NA.8.1a).<br><br>
+             ⚠️ <b>Nicht abgedeckt:</b> Betonstahlmatten/nach dem Schweißen gebogene Bewehrung (eigene Tabelle NA.8.1b), Kaltbiegen auf der Baustelle. Für diese Fälle bitte gesondert prüfen.`
+          : `ℹ️ Bei Schrägstäben und anderen gebogenen Stäben (z.B. Schrägaufbiegungen) hängt D<sub>min</sub> von der Betondeckung <b>rechtwinklig zur Biegeebene</b> und vom Stababstand ab (Tab. NA.8.1a) — nicht nur vom Durchmesser. Stützstellen: 100mm/7·Ø→10·Ø, 50mm/3·Ø→15·Ø, darunter bis max. 20·Ø. Zwischenwerte linear interpoliert (zulässig nach ISB Arbeitsblatt 8); maßgebend ist der jeweils ungünstigere Wert aus Deckung und Abstand. Gilt für ungeschweißte Bewehrung, einmaliges Biegen.<br><br>
+             ⚠️ <b>Nicht abgedeckt:</b> Betonstahlmatten/nach dem Schweißen gebogene Bewehrung (eigene Tabelle NA.8.1b), Kaltbiegen auf der Baustelle. Für diese Fälle bitte gesondert prüfen.`;
+      }
+    },
+
+    // Draufsicht: Betondeckung + 3 Stäbe mit Abstand, für die Schrägstab-Kategorie
+    // (schematisch, nicht maßstäblich — die Werte variieren zu stark für eine echte Skalierung).
+    drawSchraegGraphic(d, dMin, cdVal, aVal) {
+      const r = Math.min(16, Math.max(8, d / 2.2));
+      const barX = [230, 340, 450];
+      const barY = 95;
+      const edgeX = 90;
+
+      return `<svg viewBox="0 0 600 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:560px;display:block;margin:18px auto 0;border-radius:8px;background:#0b1220;">
+        <defs>
+          <marker id="hm-arrow" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5z" fill="#60a5fa"/></marker>
+          <marker id="hm-arrow-start" markerWidth="7" markerHeight="7" refX="1" refY="3.5" orient="auto"><path d="M7,0 L7,7 L0,3.5z" fill="#60a5fa"/></marker>
+        </defs>
+        <text x="16" y="20" fill="#f59e0b" font-size="11" font-weight="bold" font-family="Oswald,sans-serif">DRAUFSICHT — BETONDECKUNG &amp; STABABSTAND (SCHEMATISCH)</text>
+
+        <!-- Schalungsrand -->
+        <line x1="${edgeX}" y1="40" x2="${edgeX}" y2="160" stroke="#8fa3c0" stroke-width="4"/>
+
+        <!-- Stäbe -->
+        ${barX.map(x => `<circle cx="${x}" cy="${barY}" r="${r}" fill="#111d30" stroke="#f59e0b" stroke-width="2.5"/>`).join('')}
+
+        <!-- Bemaßung Betondeckung: Kante bis erster Stab, auf Höhe der Abstands-Pfeile -->
+        <line x1="${edgeX}" y1="${barY+r+18}" x2="${barX[0]-r}" y2="${barY+r+18}" stroke="#60a5fa" stroke-width="1.3" marker-start="url(#hm-arrow-start)" marker-end="url(#hm-arrow)"/>
+        <line x1="${edgeX}" y1="${barY+r+6}" x2="${edgeX}" y2="${barY+r+22}" stroke="#60a5fa" stroke-width="1"/>
+        <line x1="${barX[0]-r}" y1="${barY+r+6}" x2="${barX[0]-r}" y2="${barY+r+22}" stroke="#60a5fa" stroke-width="1"/>
+        <text x="${(edgeX + barX[0]-r)/2}" y="${barY+r+36}" fill="#60a5fa" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">c<tspan font-size="8" dy="2">d</tspan><tspan dy="-2"> = ${cdVal}mm</tspan></text>
+
+        <!-- Bemaßung Stababstand -->
+        ${[0,1].map(i => `
+          <line x1="${barX[i]+r}" y1="${barY+r+18}" x2="${barX[i+1]-r}" y2="${barY+r+18}" stroke="#10b981" stroke-width="1.3" marker-start="url(#hm-arrow-start)" marker-end="url(#hm-arrow)"/>
+          <line x1="${barX[i]+r}" y1="${barY+r+6}" x2="${barX[i]+r}" y2="${barY+r+22}" stroke="#10b981" stroke-width="1"/>
+          <line x1="${barX[i+1]-r}" y1="${barY+r+6}" x2="${barX[i+1]-r}" y2="${barY+r+22}" stroke="#10b981" stroke-width="1"/>
+        `).join('')}
+        <text x="${(barX[0]+barX[1])/2}" y="${barY+r+36}" fill="#10b981" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">a = ${aVal}mm</text>
+        <text x="${(barX[1]+barX[2])/2}" y="${barY+r+36}" fill="#10b981" font-size="12" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">a = ${aVal}mm</text>
+
+        <text x="16" y="180" fill="#536b8c" font-size="8.5" font-family="DM Sans,sans-serif">Schematische Darstellung, nicht maßstäblich. Ø${d}mm, ${barX.length} Stäbe exemplarisch.</text>
+      </svg>`;
+    },
+
+    // Vereinfachte Darstellung des Biegekreises für Haken/Winkelhaken/Schlaufen/Bügel
+    drawBuegelGraphic(d, dMin) {
+      const r = Math.min(60, Math.max(30, dMin / 4));
+      const cx = 150, cy = 100;
+      return `<svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:320px;display:block;margin:18px auto 0;border-radius:8px;background:#0b1220;">
+        <text x="16" y="20" fill="#f59e0b" font-size="11" font-weight="bold" font-family="Oswald,sans-serif">BIEGEKREIS (SCHEMATISCH)</text>
+        <path d="M ${cx-r-8} ${cy} A ${r+8} ${r+8} 0 0 1 ${cx} ${cy-r-8}" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
+        <line x1="${cx}" y1="${cy-r-8}" x2="${cx+40}" y2="${cy-r-8}" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
+        <line x1="${cx-r-8}" y1="${cy}" x2="${cx-r-8}" y2="${cy+40}" stroke="#f59e0b" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#ef4444" stroke-width="1.3" stroke-dasharray="4,3"/>
+        <line x1="${cx}" y1="${cy}" x2="${cx+r}" y2="${cy}" stroke="#ef4444" stroke-width="1"/>
+        <text x="${cx+r/2}" y="${cy-6}" fill="#ef4444" font-size="10" font-weight="bold" text-anchor="middle" font-family="JetBrains Mono,monospace">D<tspan font-size="7" dy="2">min</tspan><tspan dy="-2">=${dMin}mm</tspan></text>
+        <text x="150" y="180" fill="#536b8c" font-size="8.5" text-anchor="middle" font-family="DM Sans,sans-serif">Schematische Darstellung, nicht maßstäblich. Ø${d}mm.</text>
+      </svg>`;
     }
   };
 
@@ -2649,6 +2916,7 @@
 
       const fyd_kNcm2 = (500 / 1.15) / 10;
       const As_aufh_erf = fEd / fyd_kNcm2;
+      const grade_susp = document.getElementById('grade_susp').value || 'C25/30';
 
       // Vertikale Bügel
       const dSusp = parseFloat(document.getElementById('d_susp').value) || 10;
@@ -2698,6 +2966,25 @@
       const As1_horiz = legsHoriz * Math.PI * (dHoriz / 2)**2 / 100;
       const As_horiz_vorh = nHoriz * As1_horiz;
 
+      // Mindestlänge der horizontalen Stegbewehrung: gerader Stab, volle Ausnutzung (konservativ).
+      // Beide Verbundbedingungen werden ausgewiesen — mäßiger Verbund (η1=0,7, "schlechter
+      // Verbundbereich") als sichere Annahme, guter Verbund (η1=1,0) als kürzere Alternative,
+      // falls die Lage der Stäbe die günstigere Zone erlaubt. Nutzt dieselbe, bereits geprüfte
+      // Formel wie bei "Verankerungslänge Rundstahl" (Kleine Helferlein).
+      const lbRqd_horiz = HelperLengths.lbRqd(grade_susp, 0.7, dHoriz, 100); // mm, mäßiger Verbund, volle Ausnutzung
+      const lbMin_horiz = Math.max(0.3 * lbRqd_horiz, 10 * dHoriz, 100);
+      const lbd_horiz = Math.max(1.0 * lbRqd_horiz, lbMin_horiz) / 10; // cm
+
+      const lbRqd_horiz_gut = HelperLengths.lbRqd(grade_susp, 1.0, dHoriz, 100); // mm, guter Verbund, volle Ausnutzung
+      const lbMin_horiz_gut = Math.max(0.3 * lbRqd_horiz_gut, 10 * dHoriz, 100);
+      const lbd_horiz_gut = Math.max(1.0 * lbRqd_horiz_gut, lbMin_horiz_gut) / 10; // cm
+
+      // Gesamtlänge (Zuschnittlänge) des Stabes: Spannweite über Kreuzungsbereich + beide
+      // Auslagerungszonen, zzgl. Verankerung an beiden Enden.
+      const L_span_horiz  = b2 + 2 * xAusg; // cm
+      const L_gesamt_horiz = L_span_horiz + 2 * lbd_horiz; // cm, mäßiger Verbund
+      const L_gesamt_horiz_gut = L_span_horiz + 2 * lbd_horiz_gut; // cm, guter Verbund
+
       // Erforderliche Horizontalbewehrung nach NCI zu 9.2.5(2) — unverändert:
       // Bügel außerhalb des unmittelbaren Kreuzungsbereichs dürfen angeordnet werden,
       // wenn eine über die Höhe verteilte Horizontalbewehrung vorhanden ist, deren
@@ -2740,13 +3027,14 @@
               <td>Zone h₂/3 = <b>${xAusg.toFixed(1)} cm</b></td>
               <td style="color:var(--accent);font-weight:bold;">${nAusg > 0 ? '⚠️ Auslagerung aktiv' : '✓ Keine Auslagerung'}</td>
             </tr>
+            ${nAusg > 0 ? `
             <tr>
               <td><b>Horizontalbewehrung</b> (über Höhe verteilt, NCI zu 9.2.5(2))</td>
               <td>A<sub>s,h,erf</sub> = A<sub>s,ausg</sub> = <b>${As_horiz_erf.toFixed(2)} cm²</b> (${n_ausg_vorh} ausgel. Bügel)<br>
                   <small style="color:var(--text-muted)">Vorschlag: je Seite ${n_horiz_erf_proSeite} × Ø${dHoriz} (1-schn., gerade) &nbsp;→&nbsp; gesamt ${n_horiz_erf} Stk</small></td>
               <td><b>je Seite ${nHorizSeite} × Ø${dHoriz}</b> (1-schn.) = gesamt ${nHoriz} Stk = <b>${As_horiz_vorh.toFixed(2)} cm²</b></td>
               <td style="color:${isHorizOk?'var(--success)':'var(--error)'};font-weight:bold;">${isHorizOk?'✓ OK':'✗ ERHÖHEN'}</td>
-            </tr>
+            </tr>` : ''}
           </tbody>
         </table>`;
 
@@ -2761,9 +3049,11 @@
             A<sub>s,ges,erf</sub> = A<sub>s,aufh,erf</sub> + A<sub>s,schub,erf</sub> = ${As_aufh_erf.toFixed(2)} + ${As_schub_erf.toFixed(2)} = <b>${As_ges_erf.toFixed(2)} cm²</b><br>
             Gewählt: ${nErf} × Ø${dSusp} (${legs}-schnittig) = ${As_aufh_vorh.toFixed(2)} cm²<br>
             Zulässige Auslagerungszone: x<sub>ausg</sub> = h<sub>2</sub> / 3 = ${xAusg.toFixed(1)} cm<br>
-            Ausgelagerte Bügel (außerhalb Kreuzungsbereich): n<sub>ausg,vorh</sub> = ${n_ausg_vorh} × Ø${dSusp} (${legs}-schn.) = A<sub>s,ausg</sub> = ${As_ausg_vorh.toFixed(2)} cm²<br>
+            ${nAusg > 0 ? `Ausgelagerte Bügel (außerhalb Kreuzungsbereich): n<sub>ausg,vorh</sub> = ${n_ausg_vorh} × Ø${dSusp} (${legs}-schn.) = A<sub>s,ausg</sub> = ${As_ausg_vorh.toFixed(2)} cm²<br>
             Nach NCI zu 9.2.5(2): A<sub>s,h,erf</sub> = A<sub>s,ausg</sub> = <b>${As_horiz_erf.toFixed(2)} cm²</b> — Gesamtquerschnitt der über die Höhe verteilten Horizontalbewehrung muss dem Gesamtquerschnitt der ausgelagerten Bügel entsprechen.<br>
-            Vorschlag bei Ø${dHoriz} (1-schnittig, gerader Einzelstab, A<sub>s1</sub>=${As1_horiz.toFixed(2)} cm²): n<sub>horiz,erf</sub> je Seite = ⌈(A<sub>s,h,erf</sub>/2) / A<sub>s1</sub>⌉ = ⌈${(As_horiz_erf/2).toFixed(2)} / ${As1_horiz.toFixed(2)}⌉ = <b>${n_horiz_erf_proSeite} Stk je Seite</b> (gesamt ${n_horiz_erf} Stk, symmetrisch über die Höhe verteilt)
+            Vorschlag bei Ø${dHoriz} (1-schnittig, gerader Einzelstab, A<sub>s1</sub>=${As1_horiz.toFixed(2)} cm²): n<sub>horiz,erf</sub> je Seite = ⌈(A<sub>s,h,erf</sub>/2) / A<sub>s1</sub>⌉ = ⌈${(As_horiz_erf/2).toFixed(2)} / ${As1_horiz.toFixed(2)}⌉ = <b>${n_horiz_erf_proSeite} Stk je Seite</b> (gesamt ${n_horiz_erf} Stk, symmetrisch über die Höhe verteilt)<br>
+            Zuschnittlänge Stegbewehrung (mäßiger Verbund): l<sub>bd,horiz</sub> (Ø${dHoriz}) = ${lbd_horiz.toFixed(0)} cm &nbsp;→&nbsp; L ≥ b₂ + 2·x<sub>ausg</sub> + 2·l<sub>bd,horiz</sub> = ${b2.toFixed(1)} + 2·${xAusg.toFixed(1)} + 2·${lbd_horiz.toFixed(0)} = <b>${L_gesamt_horiz.toFixed(0)} cm</b><br>
+            Zuschnittlänge Stegbewehrung (guter Verbund): l<sub>bd,horiz</sub> (Ø${dHoriz}) = ${lbd_horiz_gut.toFixed(0)} cm &nbsp;→&nbsp; L ≥ ${b2.toFixed(1)} + 2·${xAusg.toFixed(1)} + 2·${lbd_horiz_gut.toFixed(0)} = <b>${L_gesamt_horiz_gut.toFixed(0)} cm</b>` : `Keine Auslagerung aktiv (n<sub>ausg</sub>=0) → keine Horizontalbewehrung nach NCI zu 9.2.5(2) erforderlich.`}
           </div>
         </details>
       </div>`;
@@ -2775,7 +3065,13 @@
         nAusg,
         nAusgProSeite,
         nHoriz,
-        asHorizVorh: As_horiz_vorh
+        asHorizVorh: As_horiz_vorh,
+        dSusp, legs, dHoriz, nHorizSeite,
+        lbdHoriz: lbd_horiz,
+        LGesamtHoriz: L_gesamt_horiz,
+        LSpanHoriz: L_span_horiz,
+        lbdHorizGut: lbd_horiz_gut,
+        LGesamtHorizGut: L_gesamt_horiz_gut
       });
 
       document.getElementById('res-susp').innerHTML = html;
