@@ -3214,13 +3214,15 @@ SOFTWARE.</div>
       const L_gesamt_horiz = L_span_horiz + 2 * lbd_horiz; // cm, mäßiger Verbund
       const L_gesamt_horiz_gut = L_span_horiz + 2 * lbd_horiz_gut; // cm, guter Verbund
 
-      // Erforderliche Horizontalbewehrung nach NCI zu 9.2.5(2) — unverändert:
-      // Bügel außerhalb des unmittelbaren Kreuzungsbereichs dürfen angeordnet werden,
-      // wenn eine über die Höhe verteilte Horizontalbewehrung vorhanden ist, deren
-      // Gesamtquerschnittsfläche dem Gesamtquerschnitt dieser (ausgelagerten) Bügel entspricht.
+      // Erforderliche Horizontalbewehrung nach NCI zu 9.2.5(2): Die ausgelagerten Bügel tragen
+      // (wie alle n_erf Bügel gemeinsam) einen Anteil der Aufhängekraft UND einen Anteil des
+      // Schubs. Die horizontale Bewehrung muss nur den Aufhängekraft-Anteil zurückhängen, der
+      // auf die ausgelagerten Bügel entfällt — nicht deren vollen (auch schubbedingten)
+      // Querschnitt. Bei Gleichverteilung der Aufhängekraft auf alle n_erf Bügel entfällt auf
+      // die n_ausg ausgelagerten Bügel der Anteil (n_ausg/n_erf) von A_s,aufh,erf.
       const n_ausg_vorh  = 2 * nAusgProSeite;      // tatsächlich angeordnete ausgelagerte Bügel (symmetrisch)
-      const As_ausg_vorh = n_ausg_vorh * As1_st;   // Gesamtquerschnitt dieser Bügel
-      const As_horiz_erf = nAusg > 0 ? As_ausg_vorh : 0;
+      const As_ausg_vorh = n_ausg_vorh * As1_st;   // Gesamtquerschnitt dieser Bügel (zur Info/Kontrolle)
+      const As_horiz_erf = nAusg > 0 ? (nAusg / nErf) * As_aufh_erf : 0;
 
       // Vorschlag: wie viele Stäbe (mit aktuell gewähltem Ø) wären JE SEITE nötig,
       // um As_horiz_erf (Gesamtfläche, beide Seiten) zu decken?
@@ -3279,7 +3281,7 @@ SOFTWARE.</div>
             Gewählt: ${nErf} × Ø${dSusp} (${legs}-schnittig) = ${As_aufh_vorh.toFixed(2)} cm²<br>
             Zulässige Auslagerungszone: x<sub>ausg</sub> = h<sub>2</sub> / 3 = ${xAusg.toFixed(1)} cm<br>
             ${nAusg > 0 ? `Ausgelagerte Bügel (außerhalb Kreuzungsbereich): n<sub>ausg,vorh</sub> = ${n_ausg_vorh} × Ø${dSusp} (${legs}-schn.) = A<sub>s,ausg</sub> = ${As_ausg_vorh.toFixed(2)} cm²<br>
-            Nach NCI zu 9.2.5(2): A<sub>s,h,erf</sub> = A<sub>s,ausg</sub> = <b>${As_horiz_erf.toFixed(2)} cm²</b> — Gesamtquerschnitt der über die Höhe verteilten Horizontalbewehrung muss dem Gesamtquerschnitt der ausgelagerten Bügel entsprechen.<br>
+            Nach NCI zu 9.2.5(2): Anteil ausgelagert = n<sub>ausg</sub>/n<sub>erf</sub> = ${nAusg}/${nErf} = ${(nAusg/nErf).toFixed(3)} &nbsp;→&nbsp; A<sub>s,h,erf</sub> = (n<sub>ausg</sub>/n<sub>erf</sub>) · A<sub>s,aufh,erf</sub> = ${(nAusg/nErf).toFixed(3)} · ${As_aufh_erf.toFixed(2)} = <b>${As_horiz_erf.toFixed(2)} cm²</b> — die ausgelagerten Bügel tragen anteilig sowohl Aufhängekraft als auch Schub; die horizontale Bewehrung muss nur den auf sie entfallenden Aufhängekraft-Anteil zurückhängen (A<sub>s,ausg,vorh</sub> = ${As_ausg_vorh.toFixed(2)} cm² zum Vergleich, inkl. Schub-Anteil).<br>
             Vorschlag bei Ø${dHoriz} (1-schnittig, gerader Einzelstab, A<sub>s1</sub>=${As1_horiz.toFixed(2)} cm²): n<sub>horiz,erf</sub> je Seite = ⌈(A<sub>s,h,erf</sub>/2) / A<sub>s1</sub>⌉ = ⌈${(As_horiz_erf/2).toFixed(2)} / ${As1_horiz.toFixed(2)}⌉ = <b>${n_horiz_erf_proSeite} Stk je Seite</b> (gesamt ${n_horiz_erf} Stk, symmetrisch über die Höhe verteilt)<br>
             Zuschnittlänge Stegbewehrung (mäßiger Verbund): l<sub>bd,horiz</sub> (Ø${dHoriz}) = ${lbd_horiz.toFixed(0)} cm &nbsp;→&nbsp; L ≥ b₂ + 2·x<sub>ausg</sub> + 2·l<sub>bd,horiz</sub> = ${b2.toFixed(1)} + 2·${xAusg.toFixed(1)} + 2·${lbd_horiz.toFixed(0)} = <b>${L_gesamt_horiz.toFixed(0)} cm</b><br>
             Zuschnittlänge Stegbewehrung (guter Verbund): l<sub>bd,horiz</sub> (Ø${dHoriz}) = ${lbd_horiz_gut.toFixed(0)} cm &nbsp;→&nbsp; L ≥ ${b2.toFixed(1)} + 2·${xAusg.toFixed(1)} + 2·${lbd_horiz_gut.toFixed(0)} = <b>${L_gesamt_horiz_gut.toFixed(0)} cm</b>` : `Keine Auslagerung aktiv (n<sub>ausg</sub>=0) → keine Horizontalbewehrung nach NCI zu 9.2.5(2) erforderlich.`}
@@ -3321,4 +3323,3 @@ SOFTWARE.</div>
 </script>
 </body>
 </html>
-
