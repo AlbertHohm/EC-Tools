@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -576,7 +577,7 @@ SOFTWARE.</div>
         <div style="text-align:center; margin-bottom:6px; font-size:11px; color:var(--text-muted); font-weight:600; letter-spacing:.03em;">VERBUNDBEDINGUNG (EC2 8.4.2)</div>
         <div id="hl-bond-buttons-anch" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin-bottom:18px;"></div>
 
-        <div style="display:flex; align-items:center; justify-content:center; gap:20px;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:20px; flex-wrap:wrap;">
           <div class="grid-form" style="max-width:140px; grid-template-columns: 1fr; margin:0;">
             <div class="form-group">
               <label>Ausnutzung A<sub>s,erf</sub>/A<sub>s,vorh</sub> [%]</label>
@@ -584,6 +585,16 @@ SOFTWARE.</div>
                 title="σ_sd = f_yd · (A_s,erf/A_s,vorh). Bei 100% = volle Ausnutzung (Regelfall, konservativ)."
                 oninput="HelperLengths.setAusnutzung(this.value, 'hl-ausnutzung-anch')"
                 onblur="HelperLengths.clampAusnutzung(this.value, 'hl-ausnutzung-anch')">
+            </div>
+          </div>
+          <div style="width:1px; align-self:stretch; background:var(--border);"></div>
+          <div class="grid-form" style="max-width:190px; grid-template-columns: 1fr; margin:0;">
+            <div class="form-group">
+              <label>Betondeckung c<sub>d</sub> [mm]<br><small style="text-transform:none; font-weight:400; letter-spacing:normal; color:var(--text-muted);">rechtwinklig zur Hakenebene</small></label>
+              <input type="number" id="hl-cd-anch" value="25" min="10" step="5"
+                title="Betondeckung rechtwinklig zur Krümmungsebene — bestimmt, ob α₁=0,7 bei Haken/Winkelhaken/Schlaufen (EC2 Tab. 8.2) überhaupt zulässig ist (nötig: cd > 3·Ø). Nicht zwingend identisch mit der sonstigen Bauteil-Betondeckung."
+                oninput="HelperLengths.setCd(this.value, 'hl-cd-anch')">
+              <small style="display:block; margin-top:4px; color:var(--text-muted); font-size:10px; line-height:1.4;">Nur für die Haken-Zulässigkeit (α₁), nicht für l<sub>b,rqd</sub> selbst.</small>
             </div>
           </div>
           <div style="width:1px; align-self:stretch; background:var(--border);"></div>
@@ -603,6 +614,9 @@ SOFTWARE.</div>
       <div class="card-header"><h2>Verankerungslänge l<sub>bd</sub> [cm] — EC2 8.4.4</h2></div>
       <div class="card-body">
         <table class="detail-table" style="width:100%;" id="hl-anchorage-table"></table>
+        <div class="norm-hint" id="hl-hakenwarn-anch" style="margin-top:12px; display:none; border-color:var(--error);">
+          ⚠️ α₁=0,7 (Haken-Spalte) ist bei dieser Betondeckung <b>nicht zulässig</b> — EC2 Tab. 8.2 verlangt c<sub>d</sub> &gt; 3·Ø rechtwinklig zur Krümmungsebene. Hier maßgebend: α₁=1,0, wie bei geradem Stabende.
+        </div>
         <div class="norm-hint" id="hl-druckzone-hint-anch" style="margin-top:12px; display:none;">
           ℹ️ In der Druckzone: l<sub>b,min</sub>=max(0,6·l<sub>b,rqd</sub>; 10·Ø) statt 0,3-Faktor bei Zugstäben. Haken, Winkelhaken und Schlaufen sind bei Druckstäben <b>nicht zulässig</b> — nur gerade Stabenden.
         </div>
@@ -1040,6 +1054,9 @@ SOFTWARE.</div>
           σ<sub>sd</sub> = (F<sub>td</sub> × 10) / A<sub>s,vorh</sub> [N/mm²] &nbsp;→&nbsp;
           l<sub>bd</sub> aus σ<sub>sd</sub> und f<sub>bd</sub><br>
           Die <b>Längsstäbe in der Tabelle</b> sind die tatsächlich am Auflager vorhandenen Stäbe. Prüft ob diese auf l<sub>vorh</sub> = b<sub>sup</sub> − c<sub>nom</sub> verankert werden können.
+        </div>
+        <div class="norm-hint" style="border-color:var(--accent);">
+          ℹ️ <b>Bei Haken/Winkelhaken/Schlaufen:</b> α₁=0,7 wird gemäß gewählter Endausbildung angesetzt. Voraussetzung nach EC2 Tab. 8.2 ist eine Betondeckung <b>rechtwinklig zur Krümmungsebene</b> von mehr als 3·Ø — bei einem seitlich abbiegenden Winkelhaken ist das meist die <b>seitliche</b> Betondeckung, die von der eingetragenen c<sub>nom</sub> abweichen kann. Das Tool prüft diesen Wert nicht automatisch — bitte die seitliche Betondeckung am Bauteil eigenständig sicherstellen.
         </div>
       </div>
     </div>
@@ -1862,7 +1879,7 @@ SOFTWARE.</div>
   const HelperLengths = {
     grades: ['C20/25','C25/30','C30/37','C35/45','C40/50','C45/55','C50/60'],
     diameters: [8,10,12,14,16,20,25,28,32,40],
-    state: { grade: 'C25/30', bond: 1.0, ausnutzung: 100, druckzone: false, diameter: 16 },
+    state: { grade: 'C25/30', bond: 1.0, ausnutzung: 100, druckzone: false, diameter: 16, cd: 25 },
 
     fyd: 500 / 1.15, // N/mm²
 
@@ -1919,6 +1936,13 @@ SOFTWARE.</div>
         const el = document.getElementById(id);
         if (el) el.checked = checked;
       });
+      this.render();
+    },
+
+    setCd(val) {
+      let v = parseFloat(val);
+      if (isNaN(v) || v < 0) v = 0;
+      this.state.cd = v;
       this.render();
     },
 
@@ -1985,17 +2009,33 @@ SOFTWARE.</div>
     },
 
     render() {
-      const { grade, bond, druckzone, diameter: d } = this.state;
+      const { grade, bond, druckzone, diameter: d, cd } = this.state;
 
       const anchTable = document.getElementById('hl-anchorage-table');
+      const hakenwarnEl = document.getElementById('hl-hakenwarn-anch');
       if (anchTable) {
         const lbRqd = this.lbRqd(grade, bond, d, this.state.ausnutzung);
         const lbMinFactor = druckzone ? 0.6 : 0.3;
         const lbMin = Math.max(lbMinFactor * lbRqd, 10 * d, 100);
         const lbdStraight = Math.max(1.0 * lbRqd, lbMin) / 10;
+
+        // EC2 Tab. 8.2, Zeile 2 + Fußnote: α1=0,7 bei Haken/Winkelhaken/Schlaufen setzt voraus,
+        // dass die eingetragene cd (rechtwinklig zur Krümmungsebene, i.d.R. die seitliche
+        // Betondeckung bei einem Winkelhaken) > 3·Ø ist. Der Wert wird hier immer angezeigt
+        // (Ingenieurentscheidung) — mit Hinweis, sobald die Bedingung nicht erfüllt ist.
+        const hakenCoverOk = cd > 3 * d;
+        const lbdHaken = Math.max(0.7 * lbRqd, lbMin) / 10;
+
+        if (hakenwarnEl) {
+          hakenwarnEl.style.display = (!druckzone && !hakenCoverOk) ? 'block' : 'none';
+          hakenwarnEl.innerHTML = `ℹ️ c<sub>d</sub>=${cd.toFixed(0)}mm ≤ 3·Ø=${(3*d).toFixed(0)}mm: Voraussetzung für α₁=0,7 (EC2 Tab. 8.2, c<sub>d</sub> &gt; ${(3*d).toFixed(0)}mm rechtwinklig zur Krümmungsebene — bei Winkelhaken meist die <b>seitliche</b> Betondeckung) ist mit dem eingetragenen Wert nicht erfüllt. Bitte die tatsächliche Deckung am Bauteil prüfen, bevor die Haken-Spalte angesetzt wird.`;
+        }
+
+        const hakenCell = `${lbdHaken.toFixed(0)}`;
+
         const row = druckzone
           ? `<tr><td><b>Ø${d}</b></td><td>${lbdStraight.toFixed(0)}</td></tr>`
-          : `<tr><td><b>Ø${d}</b></td><td>${lbdStraight.toFixed(0)}</td><td>${(Math.max(0.7 * lbRqd, lbMin) / 10).toFixed(0)}</td></tr>`;
+          : `<tr><td><b>Ø${d}</b></td><td>${lbdStraight.toFixed(0)}</td><td>${hakenCell}</td></tr>`;
         anchTable.innerHTML = druckzone
           ? `<thead><tr>
                <th>Ø [mm]</th>
@@ -3021,17 +3061,19 @@ SOFTWARE.</div>
         const bnd  = parseFloat(bSel.value)   || 1.0;
         const isSchlaufe = eVal === '0.7S';
         const isHakenForm = eVal === '0.7' || eVal === '0.7S';
-        // EC2 Tab. 8.2, Zeile 2 + Fußnote: α1=0,7 bei Haken/Winkelhaken/Schlaufen gilt NUR,
-        // wenn die Betondeckung im Krümmungsbereich rechtwinklig zur Krümmungsebene cd > 3·Ø
-        // ist — sonst fällt α1 auf 1,0 zurück (kein Vorteil aus der Hakenform).
-        const hakenCoverOk = cnom_a > 3 * d;
-        const a1   = isHakenForm ? (hakenCoverOk ? 0.7 : 1.0) : (parseFloat(eVal) || 1.0);
-        const a1Reduced = isHakenForm && !hakenCoverOk;
+        // EC2 Tab. 8.2, Zeile 2 + Fußnote: α1=0,7 bei Haken/Winkelhaken/Schlaufen setzt voraus,
+        // dass die Betondeckung rechtwinklig zur Krümmungsebene cd > 3·Ø ist. Diese Deckung ist
+        // bei einem seitlich abbiegenden Winkelhaken i.d.R. die SEITLICHE Betondeckung — nicht
+        // notwendigerweise identisch mit c_nom (das Tool kennt keine seitliche Deckung als
+        // eigenen Wert). α1=0,7 wird daher hier gemäß gewählter Endausbildung angesetzt
+        // (Ingenieurentscheidung); die Bedingung selbst ist eigenständig zu prüfen (Hinweis
+        // unterhalb der Tabelle).
+        const a1   = isHakenForm ? 0.7 : (parseFloat(eVal) || 1.0);
         if (n > 0 && d > 0) {
           const nEff = isSchlaufe ? n * 2 : n;
           const As   = nEff * Math.PI * (d/2)**2 / 100;
           totalAs += As;
-          pos.push({ n, nEff, d, a1, bnd, As, isSchlaufe, a1Reduced });
+          pos.push({ n, nEff, d, a1, bnd, As, isSchlaufe, isHakenForm });
         }
       });
 
@@ -3108,7 +3150,7 @@ SOFTWARE.</div>
       posResults.forEach((i, p) => {
         html += `<tr>
           <td>${p+1}</td>
-          <td>${i.n} × Ø${i.d} mm <small style="color:var(--text-muted);">(η₁=${i.bnd.toFixed(1)})</small>${i.a1Reduced ? `<br><small style="color:var(--accent);">⚠️ c<sub>nom</sub>≤3·Ø: α₁=1,0 statt 0,7 (kein Hakenvorteil)</small>` : ''}</td>
+          <td>${i.n} × Ø${i.d} mm <small style="color:var(--text-muted);">(η₁=${i.bnd.toFixed(1)})</small>${i.isHakenForm ? `<br><small style="color:var(--accent);">ℹ️ α₁=0,7 setzt seitliche Betondeckung &gt; ${(3*i.d).toFixed(0)}mm voraus (3·Ø) — bitte prüfen</small>` : ''}</td>
           <td>${i.As.toFixed(2)} cm²</td>
           <td><b>${i.lbd.toFixed(0)} mm</b></td>
           <td>${l_vorh.toFixed(0)} mm</td>
